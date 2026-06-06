@@ -12,7 +12,7 @@ import {
   type ServerDataTableRow,
   type ServerDataTableSort,
   type ServerDataTableViewProps,
-} from "./server-data-table-view";
+} from "./view";
 
 export type SemaphorServerDataTableQueryState = {
   page: number;

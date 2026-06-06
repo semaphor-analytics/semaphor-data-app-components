@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ServerDataTableView,
   type ServerDataTableSort,
-} from "../../../registry/server-data-table/server-data-table-view";
+} from "../../../registry/server-data-table/view";
 import { fetchFakeOrders, type FakeServerDataResponse } from "../fixtures/fake-server";
 import { ordersColumns } from "../fixtures/records-fixtures";
 
@@ -26,33 +26,47 @@ export function ServerDataTableBasicExample({
     key: "revenue",
     direction: "desc",
   });
-  const [response, setResponse] = useState<FakeServerDataResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
+  const request = useMemo(
+    () => ({ page, pageSize, sort, latencyMs, errorMode, totalRowCount }),
+    [errorMode, latencyMs, page, pageSize, sort, totalRowCount],
+  );
+  const requestKey = [
+    page,
+    pageSize,
+    sort?.key ?? "",
+    sort?.direction ?? "",
+    latencyMs,
+    errorMode,
+    totalRowCount,
+  ].join("|");
+  const [state, setState] = useState<{
+    requestKey: string;
+    response: FakeServerDataResponse | null;
+    error: unknown;
+  }>({ requestKey: "", response: null, error: null });
+
+  const isCurrent = state.requestKey === requestKey;
+  const response = state.response;
+  const error = isCurrent ? state.error : null;
+  const loading = !isCurrent;
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
 
-    fetchFakeOrders({ page, pageSize, sort, latencyMs, errorMode, totalRowCount })
+    fetchFakeOrders(request)
       .then((nextResponse) => {
         if (!active) return;
-        setResponse(nextResponse);
+        setState({ requestKey, response: nextResponse, error: null });
       })
       .catch((nextError: unknown) => {
         if (!active) return;
-        setError(nextError);
-        setResponse(null);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        setState((current) => ({ requestKey, response: current.response, error: nextError }));
       });
 
     return () => {
       active = false;
     };
-  }, [errorMode, latencyMs, page, pageSize, sort, totalRowCount]);
+  }, [request, requestKey]);
 
   return (
     <ServerDataTableView
@@ -69,7 +83,6 @@ export function ServerDataTableBasicExample({
       onPageChange={setPage}
       onPageSizeChange={(nextPageSize) => {
         setPage(1);
-        setResponse(null);
         onPageSizeChange?.(nextPageSize);
       }}
       onSortChange={(nextSort) => {

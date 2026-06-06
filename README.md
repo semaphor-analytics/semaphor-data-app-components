@@ -26,7 +26,11 @@ The `server-data-table` item installs `@tanstack/react-table` and the
 
 ## Local Development
 
+Use Node `20.19+` or `22.12+`. This repo includes `.nvmrc` for local
+development.
+
 ```bash
+nvm use
 npm install
 npm run dev
 ```

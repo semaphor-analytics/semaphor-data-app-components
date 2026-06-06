@@ -36,14 +36,14 @@
       ],
       "files": [
         {
-          "path": "registry/server-data-table/server-data-table.tsx",
+          "path": "registry/server-data-table/index.tsx",
           "type": "registry:component",
-          "target": "components/semaphor/server-data-table/server-data-table.tsx"
+          "target": "components/semaphor/server-data-table/index.tsx"
         },
         {
-          "path": "registry/server-data-table/server-data-table-view.tsx",
+          "path": "registry/server-data-table/view.tsx",
           "type": "registry:component",
-          "target": "components/semaphor/server-data-table/server-data-table-view.tsx"
+          "target": "components/semaphor/server-data-table/view.tsx"
         },
         {
           "path": "registry/server-data-table/table-formatters.ts",

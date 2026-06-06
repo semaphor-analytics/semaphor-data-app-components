@@ -1,7 +1,7 @@
 import type {
   ServerDataTablePagination,
   ServerDataTableSort,
-} from "../../../registry/server-data-table/server-data-table-view";
+} from "../../../registry/server-data-table/view";
 import {
   getDisplayedTotals,
   ordersRows,

@@ -2,7 +2,7 @@ import type {
   ServerDataTableColumn,
   ServerDataTableRow,
   ServerDataTableSort,
-} from "../../../registry/server-data-table/server-data-table-view";
+} from "../../../registry/server-data-table/view";
 
 export type CampaignOrderRow = ServerDataTableRow & {
   order_date: string;
