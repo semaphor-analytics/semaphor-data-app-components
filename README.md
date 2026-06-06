@@ -12,6 +12,8 @@ private Semaphor routes.
 
 - `query-state`: reusable loading, error, empty, and success states.
 - `server-data-table`: bounded table with server-owned pagination and sorting.
+- `matrix-table`: bounded pivot/matrix table for `semaphor.matrix(...)`
+  results.
 
 ## Install
 
@@ -19,10 +21,12 @@ From a React app that already uses shadcn and `react-semaphor`:
 
 ```bash
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/server-data-table
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/matrix-table
 ```
 
 The `server-data-table` item installs `@tanstack/react-table` and the
-`query-state` item.
+`query-state` item. The `matrix-table` item installs `query-state` and consumes
+the public Data App SDK matrix result/grid shape.
 
 ## Local Development
 
@@ -62,6 +66,7 @@ Use these components for UI mechanics:
 - server sorting controls;
 - loading, error, and empty states;
 - numeric alignment and displayed totals.
+- matrix/pivot grid rendering for governed matrix query results.
 
 Do not use these components to infer fields, parse SQL, generate query specs,
 join datasets, or bypass Semaphor governance. Query specs should remain visible

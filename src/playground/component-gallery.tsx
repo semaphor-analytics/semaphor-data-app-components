@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, Database, Table2 } from "lucide-react";
+import { AlertCircle, Database, Grid3X3, Table2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,10 @@ import {
   ServerDataTableBasicExample,
   type ServerTableExampleControls,
 } from "./examples/server-data-table-basic";
+import {
+  MatrixTableBasicExample,
+  type MatrixTableExampleControls,
+} from "./examples/matrix-table-basic";
 
 export function ComponentGallery() {
   const [controls, setControls] = useState<ServerTableExampleControls>({
@@ -17,6 +21,10 @@ export function ComponentGallery() {
     latencyMs: 250,
     errorMode: "none",
     totalRowCount: 240,
+  });
+  const [matrixControls, setMatrixControls] = useState<MatrixTableExampleControls>({
+    latencyMs: 250,
+    errorMode: "none",
   });
 
   return (
@@ -40,6 +48,10 @@ export function ComponentGallery() {
             <TabsTrigger value="server-data-table">
               <Table2 className="size-4" />
               Server Data Table
+            </TabsTrigger>
+            <TabsTrigger value="matrix-table">
+              <Grid3X3 className="size-4" />
+              Matrix Table
             </TabsTrigger>
             <TabsTrigger value="query-state">
               <AlertCircle className="size-4" />
@@ -102,6 +114,42 @@ export function ComponentGallery() {
                 setControls((current) => ({ ...current, pageSize }))
               }
             />
+          </TabsContent>
+
+          <TabsContent value="matrix-table" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Matrix table controls</CardTitle>
+                <CardDescription>
+                  These controls drive the fake matrix response so loading and error states can be reviewed.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <ControlSelect
+                    label="Latency"
+                    value={String(matrixControls.latencyMs)}
+                    options={["0", "250", "800", "1600"]}
+                    onValueChange={(value) =>
+                      setMatrixControls((current) => ({ ...current, latencyMs: Number(value) }))
+                    }
+                  />
+                  <ControlSelect
+                    label="Error mode"
+                    value={matrixControls.errorMode}
+                    options={["none", "network", "server"]}
+                    onValueChange={(value) =>
+                      setMatrixControls((current) => ({
+                        ...current,
+                        errorMode: value as MatrixTableExampleControls["errorMode"],
+                      }))
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <MatrixTableBasicExample {...matrixControls} />
           </TabsContent>
 
           <TabsContent value="query-state">

@@ -51,6 +51,29 @@
           "target": "components/semaphor/server-data-table/table-formatters.ts"
         }
       ]
+    },
+    {
+      "name": "matrix-table",
+      "type": "registry:block",
+      "title": "Semaphor Matrix Table",
+      "description": "A bounded, sticky-header matrix table for Semaphor matrix query results.",
+      "registryDependencies": [
+        "semaphor-analytics/semaphor-data-app-components/query-state",
+        "button",
+        "table"
+      ],
+      "files": [
+        {
+          "path": "registry/matrix-table/index.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/matrix-table/index.tsx"
+        },
+        {
+          "path": "registry/matrix-table/view.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/matrix-table/view.tsx"
+        }
+      ]
     }
   ]
 }
