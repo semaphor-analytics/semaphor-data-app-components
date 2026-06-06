@@ -8,6 +8,18 @@ components consume public Semaphor Data App SDK result shapes. They do not own
 analytics correctness, authentication, MCP setup, query planning, SQL, or
 private Semaphor routes.
 
+Each complex table item separates mechanics from presentation:
+
+- `core.ts` contains payload parsing, pagination/sort mapping, displayed-total
+  helpers, matrix projection, collapse state helpers, and formatting utilities
+  that agents can adapt to another design system.
+- `index.tsx` is the thin Semaphor SDK wrapper around `useSemaphorQuery`.
+- `view.tsx` is the shadcn/base UI presentation shell.
+
+Customers can install the full component when the host app uses compatible
+shadcn/base UI primitives, or use the core files as reference implementations
+when adapting the table mechanics into another table/grid/design system.
+
 ## Components
 
 - `query-state`: reusable loading, error, empty, and success states.
@@ -67,6 +79,8 @@ Use these components for UI mechanics:
 - loading, error, and empty states;
 - numeric alignment and displayed totals.
 - matrix/pivot grid rendering for governed matrix query results.
+- matrix payload projection, hierarchy collapse state, sparse cell handling,
+  and subtotal/grand-total rendering guidance.
 
 Do not use these components to infer fields, parse SQL, generate query specs,
 join datasets, or bypass Semaphor governance. Query specs should remain visible

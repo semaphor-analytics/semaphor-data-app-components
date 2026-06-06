@@ -17,10 +17,19 @@ The view includes hierarchy controls for row and column axes:
 
 ## Exports
 
+- `core.ts`: reusable mechanics for matrix result-to-grid projection, visible
+  hierarchy projection, collapse state, path keys, sort state, and cell
+  formatting.
 - `MatrixTableView`: pure matrix UI. Use with fixtures, fake servers, or SDK
   matrix grid/result payloads.
 - `SemaphorMatrixTable`: thin wrapper around `useSemaphorQuery` for governed
   `semaphor.matrix(...)` queries.
+
+Use the full component when the host app uses compatible shadcn/base UI
+primitives. If the host has another table/grid/design system, adapt the
+`core.ts` mechanics into that presentation shell instead of inventing sparse
+cell parsing, pivot column hierarchy, subtotal, or grand-total behavior from
+scratch.
 
 ## Boundary
 

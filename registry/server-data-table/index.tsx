@@ -2,17 +2,29 @@ import { useMemo, useState } from "react";
 import {
   type SemaphorQueryRuntimeOptions,
   type SemaphorRecordsQueryDefinition,
-  type SemaphorResultColumn,
   useSemaphorQuery,
 } from "react-semaphor/data-app-sdk";
 import {
-  ServerDataTableView,
+  buildDisplayedNumericTotalRow,
+  toServerDataTableColumn,
+  toServerDataTablePagination,
   type ServerDataTableColumn,
-  type ServerDataTablePagination,
   type ServerDataTableRow,
   type ServerDataTableSort,
+} from "./core";
+import {
+  ServerDataTableView,
   type ServerDataTableViewProps,
 } from "./view";
+
+export type {
+  ServerDataTableColumn,
+  ServerDataTableColumnAlign,
+  ServerDataTablePagination,
+  ServerDataTablePaginationSummary,
+  ServerDataTableRow,
+  ServerDataTableSort,
+} from "./core";
 
 export type SemaphorServerDataTableQueryState = {
   page: number;
@@ -36,6 +48,7 @@ export function SemaphorServerDataTable<TRow extends ServerDataTableRow = Server
   options,
   initialPageSize = 25,
   columns: providedColumns,
+  totalRow: providedTotalRow,
   ...viewProps
 }: SemaphorServerDataTableProps<TRow>) {
   const [page, setPage] = useState(1);
@@ -47,23 +60,32 @@ export function SemaphorServerDataTable<TRow extends ServerDataTableRow = Server
     [page, pageSize, queryFactory, sort],
   );
   const result = useSemaphorQuery<TRow>(query, options);
+  const rows = useMemo(() => result.records ?? [], [result.records]);
 
   const columns = useMemo(
-    () => providedColumns ?? result.columns?.map(toServerColumn) ?? [],
+    () => providedColumns ?? result.columns?.map(toServerDataTableColumn) ?? [],
     [providedColumns, result.columns],
   );
 
-  const pagination = result.pagination
-    ? toServerPagination(result.pagination)
-    : { page, pageSize, totalRows: result.records?.length ?? 0 };
+  const pagination = toServerDataTablePagination(result.pagination, {
+    page,
+    pageSize,
+    rowCount: rows.length,
+  });
+
+  const totalRow = useMemo(
+    () => providedTotalRow ?? buildDisplayedNumericTotalRow(rows, columns),
+    [columns, providedTotalRow, rows],
+  );
 
   return (
     <ServerDataTableView
       {...viewProps}
       columns={columns}
-      rows={result.records ?? []}
+      rows={rows}
       pagination={pagination}
       sort={sort}
+      totalRow={totalRow}
       loading={result.isLoading}
       error={result.error}
       onPageChange={setPage}
@@ -78,30 +100,3 @@ export function SemaphorServerDataTable<TRow extends ServerDataTableRow = Server
     />
   );
 }
-
-function toServerColumn(column: SemaphorResultColumn): ServerDataTableColumn {
-  return {
-    key: column.key,
-    label: column.label ?? column.name ?? column.key,
-    dataType: column.dataType,
-  };
-}
-
-function toServerPagination(pagination: {
-  page: number;
-  pageSize: number;
-  totalCount?: number;
-  pageCount?: number;
-  hasNextPage?: boolean;
-  hasPrevPage?: boolean;
-}): ServerDataTablePagination {
-  return {
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-    totalRows: pagination.totalCount,
-    pageCount: pagination.pageCount,
-    hasNextPage: pagination.hasNextPage,
-    hasPreviousPage: pagination.hasPrevPage,
-  };
-}
-

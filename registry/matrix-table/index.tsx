@@ -6,9 +6,19 @@ import {
 } from "react-semaphor/data-app-sdk";
 import {
   MatrixTableView,
-  type MatrixTableSort,
   type MatrixTableViewProps,
 } from "./view";
+import type { MatrixTableSort } from "./core";
+
+export type {
+  MatrixGridCell,
+  MatrixGridColumn,
+  MatrixGridRow,
+  MatrixHeaderCell,
+  MatrixHeaderRow,
+  MatrixPathSegment,
+  MatrixResult,
+} from "./core";
 
 export type SemaphorMatrixTableQueryState = {
   sort?: MatrixTableSort;

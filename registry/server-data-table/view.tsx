@@ -57,36 +57,26 @@ import { cn } from "@/lib/utils";
 import { classifySemaphorError, type SemaphorErrorKind } from "../query-state/format-error";
 import { QueryState } from "../query-state/query-state";
 import {
+  summarizeServerDataTablePagination,
+  type ServerDataTableColumn,
+  type ServerDataTableColumnAlign,
+  type ServerDataTablePagination,
+  type ServerDataTableRow,
+  type ServerDataTableSort,
+} from "./core";
+import {
   formatTableCellValue,
   isNumericColumn,
-  type ServerDataTableColumnShape,
 } from "./table-formatters";
 
-export type ServerDataTableColumnAlign = "left" | "right" | "center";
-
-export type ServerDataTableColumn = ServerDataTableColumnShape & {
-  description?: string;
-  sortable?: boolean;
-  align?: ServerDataTableColumnAlign;
-  minWidth?: number;
-  maxWidth?: number;
-};
-
-export type ServerDataTableRow = Record<string, unknown>;
-
-export type ServerDataTableSort = {
-  key: string;
-  direction: "asc" | "desc";
-};
-
-export type ServerDataTablePagination = {
-  page: number;
-  pageSize: number;
-  totalRows?: number;
-  pageCount?: number;
-  hasNextPage?: boolean;
-  hasPreviousPage?: boolean;
-};
+export type {
+  ServerDataTableColumn,
+  ServerDataTableColumnAlign,
+  ServerDataTablePagination,
+  ServerDataTablePaginationSummary,
+  ServerDataTableRow,
+  ServerDataTableSort,
+} from "./core";
 
 export type ServerDataTableDensity = "comfortable" | "compact";
 
@@ -178,14 +168,16 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
     onColumnVisibilityChange: setColumnVisibility,
   });
 
-  const totalRows = pagination?.totalRows ?? rows.length;
-  const page = pagination?.page ?? 1;
-  const pageSize = pagination?.pageSize ?? rows.length;
-  const pageCount = pagination?.pageCount ?? Math.max(1, Math.ceil(totalRows / Math.max(pageSize, 1)));
-  const hasPreviousPage = pagination?.hasPreviousPage ?? page > 1;
-  const hasNextPage = pagination?.hasNextPage ?? page < pageCount;
-  const rangeStart = totalRows === 0 ? 0 : (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(page * pageSize, totalRows || page * pageSize);
+  const {
+    totalRows,
+    page,
+    pageSize,
+    pageCount,
+    hasPreviousPage,
+    hasNextPage,
+    rangeStart,
+    rangeEnd,
+  } = summarizeServerDataTablePagination(pagination, rows.length);
 
   const [pageInput, setPageInput] = useState<string>("");
   useEffect(() => {
