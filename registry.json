@@ -1,0 +1,56 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "semaphor-data-app-components",
+  "homepage": "https://github.com/semaphor-analytics/semaphor-data-app-components",
+  "items": [
+    {
+      "name": "query-state",
+      "type": "registry:component",
+      "title": "Semaphor Query State",
+      "description": "Reusable loading, error, empty, and success states for Semaphor Data App views.",
+      "registryDependencies": ["alert", "button", "skeleton"],
+      "files": [
+        {
+          "path": "registry/query-state/query-state.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/query-state/query-state.tsx"
+        },
+        {
+          "path": "registry/query-state/format-error.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/query-state/format-error.ts"
+        }
+      ]
+    },
+    {
+      "name": "server-data-table",
+      "type": "registry:block",
+      "title": "Semaphor Server Data Table",
+      "description": "A bounded, server-paginated, server-sortable table for Semaphor records results.",
+      "dependencies": ["@tanstack/react-table"],
+      "registryDependencies": [
+        "semaphor-analytics/semaphor-data-app-components/query-state",
+        "badge",
+        "button",
+        "table"
+      ],
+      "files": [
+        {
+          "path": "registry/server-data-table/server-data-table.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/server-data-table/server-data-table.tsx"
+        },
+        {
+          "path": "registry/server-data-table/server-data-table-view.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/server-data-table/server-data-table-view.tsx"
+        },
+        {
+          "path": "registry/server-data-table/table-formatters.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/server-data-table/table-formatters.ts"
+        }
+      ]
+    }
+  ]
+}
