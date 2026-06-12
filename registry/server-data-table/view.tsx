@@ -226,7 +226,7 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
   const footerCellPadding = density === "compact" ? "py-1.5 px-2" : "py-2 px-2";
 
   return (
-    <section className="rounded-lg border bg-card text-card-foreground">
+    <section className="overflow-hidden rounded-lg border bg-card text-card-foreground">
       <header className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 id={captionId} className="text-sm font-semibold">
@@ -292,21 +292,27 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
         </div>
       </header>
 
-      <div className="p-4">
+      <div>
         {!showInlineChrome ? (
-          <QueryState
-            title={title}
-            loading={isInitialLoad}
-            error={error}
-            empty={false}
-            onRetry={onRetry}
-          >
-            {null}
-          </QueryState>
+          <div className="p-4">
+            <QueryState
+              title={title}
+              loading={isInitialLoad}
+              error={error}
+              empty={false}
+              onRetry={onRetry}
+            >
+              {null}
+            </QueryState>
+          </div>
         ) : (
-          <div className="space-y-3">
-            {error ? <InlineErrorBanner error={error} onRetry={onRetry} /> : null}
-            <div className="relative overflow-hidden rounded-md border">
+          <>
+            {error ? (
+              <div className="p-4 pb-0">
+                <InlineErrorBanner error={error} onRetry={onRetry} />
+              </div>
+            ) : null}
+            <div className="relative">
             {isRefetching ? (
               <div
                 className="pointer-events-none absolute inset-x-0 top-0 z-40 h-0.5 overflow-hidden"
@@ -318,7 +324,7 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
             ) : null}
 
             <div
-              className="relative overflow-auto overscroll-contain outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+              className="relative overflow-auto overscroll-none outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
               style={{ maxHeight: height }}
               tabIndex={0}
               role="region"
@@ -515,7 +521,7 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
               </table>
             </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 

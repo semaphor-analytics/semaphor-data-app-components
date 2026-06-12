@@ -9,7 +9,7 @@ import {
   format,
   isSameDay,
 } from "date-fns"
-import { CalendarIcon, ChevronDownIcon } from "lucide-react"
+import { CalendarIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -81,6 +81,8 @@ export type DateRangePickerProps = {
   /** Text shown when the owning Semaphor input has no active date value. */
   emptyLabel?: string
   isValueActive?: boolean
+  /** When provided and the value is active, renders an inline clear affordance. */
+  onClear?: () => void
   align?: "start" | "end" | "center"
 }
 
@@ -91,6 +93,7 @@ export function DateRangePicker({
   label = "Date range",
   emptyLabel = "Any time",
   isValueActive = true,
+  onClear,
   align = "start",
 }: DateRangePickerProps) {
   const [open, setOpen] = useState(false)
@@ -130,19 +133,37 @@ export function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger
-        render={
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-xs transition-colors hover:bg-secondary"
-          />
-        }
-      >
-        <CalendarIcon className="size-3.5" />
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium text-foreground">{triggerValue}</span>
-        <ChevronDownIcon className="size-3.5 text-muted-foreground" />
-      </PopoverTrigger>
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+        <PopoverTrigger
+          render={
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-full items-center gap-2 rounded-l-md pr-2 pl-2.5 transition-colors hover:bg-secondary",
+                !(onClear && isValueActive) && "rounded-r-md",
+              )}
+            />
+          }
+        >
+          <CalendarIcon className="size-3.5 text-muted-foreground" />
+          <span className="text-muted-foreground">{label}</span>
+          <span className="font-medium text-foreground">{triggerValue}</span>
+          <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+        </PopoverTrigger>
+        {onClear && isValueActive ? (
+          <>
+            <span className="w-px self-stretch bg-border" aria-hidden />
+            <button
+              type="button"
+              aria-label={`Clear ${label}`}
+              className="inline-flex h-full items-center px-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              onClick={onClear}
+            >
+              <XIcon className="size-3.5" />
+            </button>
+          </>
+        ) : null}
+      </div>
 
       <PopoverContent align={align} className="w-auto p-0">
         <div className="flex flex-col md:flex-row">

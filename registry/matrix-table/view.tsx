@@ -171,7 +171,7 @@ export function MatrixTableView({
         {displayGrid && gridTemplateColumns ? (
           <div
             className={cn(
-              "relative isolate overflow-auto transition-opacity",
+              "relative isolate overflow-auto overscroll-none transition-opacity",
               isRefetching && "opacity-60",
             )}
             style={{ maxHeight: height }}

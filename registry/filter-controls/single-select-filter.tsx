@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CheckIcon, ChevronDownIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -53,20 +53,38 @@ export function SingleSelectFilter({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-xs transition-colors hover:bg-secondary"
-          />
-        }
-      >
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium text-foreground">{triggerValue}</span>
-        <ChevronDownIcon className="size-3.5 text-muted-foreground" />
-      </PopoverTrigger>
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+        <PopoverTrigger
+          render={
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-full items-center gap-2 rounded-l-md pr-2 pl-2.5 transition-colors hover:bg-secondary",
+                !(allowClear && value) && "rounded-r-md",
+              )}
+            />
+          }
+        >
+          <span className="text-muted-foreground">{label}</span>
+          <span className="font-medium text-foreground">{triggerValue}</span>
+          <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+        </PopoverTrigger>
+        {allowClear && value ? (
+          <>
+            <span className="w-px self-stretch bg-border" aria-hidden />
+            <button
+              type="button"
+              aria-label={`Clear ${label}`}
+              className="inline-flex h-full items-center px-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              onClick={() => onChange(null)}
+            >
+              <XIcon className="size-3.5" />
+            </button>
+          </>
+        ) : null}
+      </div>
 
-      <PopoverContent align={align} className="w-56 p-0">
+      <PopoverContent align={align} className="w-56 gap-0 p-0">
         <Command>
           {!hideSearch ? (
             <CommandInput
@@ -103,7 +121,7 @@ export function SingleSelectFilter({
           </CommandList>
         </Command>
         {allowClear && value ? (
-          <div className="flex items-center justify-end border-t px-2 py-2">
+          <div className="flex items-center justify-end border-t p-1">
             <Button
               size="sm"
               variant="ghost"

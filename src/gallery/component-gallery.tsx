@@ -7,25 +7,32 @@ import {
 } from "react"
 import {
   AlertCircleIcon,
-  BlocksIcon,
+  ArrowUpRightIcon,
   CheckCircle2Icon,
+  CheckIcon,
+  ChevronRightIcon,
   CopyIcon,
   DatabaseIcon,
   FilterIcon,
   Grid3X3Icon,
+  LayoutDashboardIcon,
   LayersIcon,
   LineChartIcon,
   MonitorIcon,
   MoonIcon,
   PackageIcon,
+  SearchIcon,
   SunIcon,
   Table2Icon,
+  TerminalIcon,
   type LucideIcon,
 } from "lucide-react"
 import type { SemaphorInputHandle } from "react-semaphor/data-app-sdk"
 
+import { SemaphorIcon } from "@/components/semaphor-logo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/theme-provider"
 import {
   Card,
@@ -38,12 +45,15 @@ import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 import { QueryState } from "../../registry/query-state/query-state"
 import { SemaphorMetricKpiCard, SemaphorMultiMeasureKpis } from "../../registry/metric-kpis"
 import {
@@ -62,7 +72,11 @@ import {
   MatrixTableBasicExample,
   type MatrixTableExampleControls,
 } from "./examples/matrix-table-basic"
-import { ComposedSamples } from "./samples/composed-samples"
+import { CardScopeBadge, type CardScopeFilter } from "./card-scope-badge"
+import {
+  dashboardSamples,
+  type DashboardSampleId,
+} from "./samples/dashboard-samples"
 
 type RegistryItemId =
   | "query-state-boundary"
@@ -72,10 +86,12 @@ type RegistryItemId =
   | "matrix-table"
   | "query-state"
 
+type RegistryCategory = "State" | "Metrics" | "Inputs" | "Tables"
+
 type RegistryItem = {
   id: RegistryItemId
   title: string
-  category: "State" | "Metrics" | "Inputs" | "Tables"
+  category: RegistryCategory
   icon: LucideIcon
   summary: string
   bestFor: string
@@ -83,25 +99,21 @@ type RegistryItem = {
   dependencies: string[]
 }
 
+const CATEGORY_ORDER: RegistryCategory[] = [
+  "Metrics",
+  "Inputs",
+  "Tables",
+  "State",
+]
+
 const registryItems: RegistryItem[] = [
-  {
-    id: "query-state-boundary",
-    title: "Query State Boundary",
-    category: "State",
-    icon: AlertCircleIcon,
-    summary:
-      "Wrap a raw useSemaphorQuery result and render loading, empty, partial, stale, and error states consistently.",
-    bestFor: "Every SDK-backed view that needs production query states.",
-    installs: ["query-state-boundary"],
-    dependencies: ["alert", "badge", "button", "skeleton"],
-  },
   {
     id: "metric-kpis",
     title: "Metric KPIs",
     category: "Metrics",
     icon: LineChartIcon,
     summary:
-      "KPI cards for primary metric values, comparison badges, and multi-measure metric maps.",
+      "KPI cards for primary metric values, comparison badges, sparklines, and multi-measure metric maps.",
     bestFor: "Executive summaries, scorecards, and compact metric rows.",
     installs: ["metric-kpis"],
     dependencies: ["query-state-boundary", "badge", "card"],
@@ -140,6 +152,17 @@ const registryItems: RegistryItem[] = [
     dependencies: ["query-state", "button", "table"],
   },
   {
+    id: "query-state-boundary",
+    title: "Query State Boundary",
+    category: "State",
+    icon: AlertCircleIcon,
+    summary:
+      "Wrap a raw useSemaphorQuery result and render loading, empty, partial, stale, and error states consistently.",
+    bestFor: "Every SDK-backed view that needs production query states.",
+    installs: ["query-state-boundary"],
+    dependencies: ["alert", "badge", "button", "skeleton"],
+  },
+  {
     id: "query-state",
     title: "Query State",
     category: "State",
@@ -152,9 +175,16 @@ const registryItems: RegistryItem[] = [
   },
 ]
 
+type Selection =
+  | { kind: "dashboard"; id: DashboardSampleId }
+  | { kind: "component"; id: RegistryItemId }
+
 export function ComponentGallery() {
-  const [activeItemId, setActiveItemId] =
-    useState<RegistryItemId>("query-state-boundary")
+  const [selection, setSelection] = useState<Selection>({
+    kind: "dashboard",
+    id: "executive",
+  })
+  const [search, setSearch] = useState("")
   const [serverControls, setServerControls] = useState<ServerTableExampleControls>({
     pageSize: 25,
     latencyMs: 250,
@@ -166,140 +196,290 @@ export function ComponentGallery() {
     errorMode: "none",
   })
 
-  const activeItem =
-    registryItems.find((item) => item.id === activeItemId) ?? registryItems[0]
-  const ActiveIcon = activeItem.icon
+  const activeDashboard =
+    selection.kind === "dashboard"
+      ? dashboardSamples.find((sample) => sample.id === selection.id) ??
+        dashboardSamples[0]
+      : null
+  const activeComponent =
+    selection.kind === "component"
+      ? registryItems.find((item) => item.id === selection.id) ??
+        registryItems[0]
+      : null
+
+  const breadcrumbSection =
+    selection.kind === "dashboard" ? "Dashboards" : "Components"
+  const breadcrumbTitle = activeDashboard?.title ?? activeComponent?.title ?? ""
 
   return (
-    <main className="min-h-svh bg-background">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8">
-        <header className="flex flex-col gap-5 border-b pb-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex max-w-3xl flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Semaphor Data Apps</Badge>
-              <Badge variant="outline">shadcn registry</Badge>
-              <Badge variant="outline">Live demo data</Badge>
-            </div>
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-semibold tracking-normal">
-                Component Gallery
-              </h1>
-              <p className="text-sm leading-6 text-muted-foreground">
-                Browse installable Semaphor UI components, preview their states,
-                and copy the registry item names to pull only the pieces your
-                Data App needs.
-              </p>
-            </div>
+    <div className="flex h-svh overflow-hidden bg-background text-foreground">
+      <GallerySidebar
+        selection={selection}
+        onSelect={setSelection}
+        search={search}
+        onSearchChange={setSearch}
+      />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/80 px-5 backdrop-blur-sm lg:px-10">
+          <div className="flex min-w-0 items-center gap-2 text-sm">
+            <span className="hidden text-muted-foreground sm:inline">
+              {breadcrumbSection}
+            </span>
+            <ChevronRightIcon className="hidden size-3.5 text-muted-foreground/50 sm:inline" />
+            <span className="truncate font-medium text-foreground">
+              {breadcrumbTitle}
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <div className="ml-auto flex items-center gap-2">
+            <MobileNavSelect selection={selection} onSelect={setSelection} />
             <ThemeSwitcher />
             <Button
               variant="outline"
+              size="sm"
               nativeButton={false}
               render={
-                <a href="https://github.com/semaphor-analytics/semaphor-data-app-components" />
+                <a
+                  href="https://github.com/semaphor-analytics/semaphor-data-app-components"
+                  target="_blank"
+                  rel="noreferrer"
+                />
               }
             >
               <PackageIcon data-icon="inline-start" />
-              Registry repo
-            </Button>
-            <Button nativeButton={false} render={<a href="#install" />}>
-              <CopyIcon data-icon="inline-start" />
-              Install
+              <span className="hidden sm:inline">Registry</span>
+              <ArrowUpRightIcon data-icon="inline-end" className="opacity-60" />
             </Button>
           </div>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {registryItems.map((item) => (
-            <ComponentCatalogCard
-              key={item.id}
-              item={item}
-              selected={item.id === activeItemId}
-              onSelect={() => setActiveItemId(item.id)}
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-6xl px-5 py-8 lg:px-10 lg:py-10">
+            {activeDashboard ? (
+              <DashboardCanvas sample={activeDashboard} />
+            ) : activeComponent ? (
+              <ComponentDetail
+                item={activeComponent}
+                serverControls={serverControls}
+                setServerControls={setServerControls}
+                matrixControls={matrixControls}
+                setMatrixControls={setMatrixControls}
+              />
+            ) : null}
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar + navigation                                               */
+/* ------------------------------------------------------------------ */
+
+function GallerySidebar({
+  selection,
+  onSelect,
+  search,
+  onSearchChange,
+}: {
+  selection: Selection
+  onSelect: (next: Selection) => void
+  search: string
+  onSearchChange: (next: string) => void
+}) {
+  const query = search.trim().toLowerCase()
+  const matches = (text: string) => !query || text.toLowerCase().includes(query)
+
+  const dashboardMatches = dashboardSamples.filter((sample) =>
+    matches(sample.title),
+  )
+  const componentGroups = CATEGORY_ORDER.map((category) => ({
+    category,
+    items: registryItems.filter(
+      (item) => item.category === category && matches(item.title),
+    ),
+  })).filter((group) => group.items.length > 0)
+
+  return (
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
+        <SemaphorIcon className="size-5 text-brand" />
+        <span className="text-sm font-semibold tracking-wide">Semaphor</span>
+        <Badge variant="secondary" className="ml-auto text-[10px] tracking-wide">
+          Registry
+        </Badge>
+      </div>
+
+      <div className="px-3 py-3">
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Search components"
+            className="h-8 pl-8 text-sm"
+          />
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-3 pb-6">
+        <NavGroup icon={LayoutDashboardIcon} label="Dashboards">
+          {dashboardMatches.map((sample) => (
+            <NavItem
+              key={sample.id}
+              icon={sample.icon}
+              label={sample.title}
+              active={
+                selection.kind === "dashboard" && selection.id === sample.id
+              }
+              onClick={() => onSelect({ kind: "dashboard", id: sample.id })}
             />
           ))}
-        </section>
+        </NavGroup>
 
-        <ComposedSamples />
+        {componentGroups.map((group) => (
+          <NavGroup key={group.category} label={group.category}>
+            {group.items.map((item) => (
+              <NavItem
+                key={item.id}
+                icon={item.icon}
+                label={item.title}
+                active={
+                  selection.kind === "component" && selection.id === item.id
+                }
+                onClick={() => onSelect({ kind: "component", id: item.id })}
+              />
+            ))}
+          </NavGroup>
+        ))}
 
-        <section className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <BlocksIcon className="size-4 text-muted-foreground" />
-              Components
-            </div>
-            <div className="flex flex-col gap-2">
-              {registryItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={[
-                      "flex items-start gap-3 rounded-md border p-3 text-left text-sm transition-colors",
-                      item.id === activeItemId
-                        ? "border-primary bg-secondary"
-                        : "bg-card hover:bg-secondary/60",
-                    ].join(" ")}
-                    onClick={() => setActiveItemId(item.id)}
-                  >
-                    <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex min-w-0 flex-col gap-1">
-                      <span className="font-medium">{item.title}</span>
-                      <span className="line-clamp-2 text-xs text-muted-foreground">
-                        {item.bestFor}
-                      </span>
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </aside>
+        {dashboardMatches.length === 0 && componentGroups.length === 0 ? (
+          <p className="px-2.5 py-6 text-center text-xs text-muted-foreground">
+            No components match “{search}”.
+          </p>
+        ) : null}
+      </nav>
 
-          <div className="min-w-0">
-            <Tabs defaultValue="preview" className="flex flex-col gap-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <ActiveIcon className="size-5 text-muted-foreground" />
-                    <h2 className="text-xl font-semibold tracking-normal">
-                      {activeItem.title}
-                    </h2>
-                  </div>
-                  <p className="max-w-2xl text-sm text-muted-foreground">
-                    {activeItem.summary}
-                  </p>
-                </div>
-                <TabsList>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="install">Install</TabsTrigger>
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="preview">
-                {renderPreview({
-                  item: activeItem,
-                  serverControls,
-                  setServerControls,
-                  matrixControls,
-                  setMatrixControls,
-                })}
-              </TabsContent>
-
-              <TabsContent value="install" id="install">
-                <InstallPanel item={activeItem} />
-              </TabsContent>
-
-              <TabsContent value="details">
-                <DetailsPanel item={activeItem} />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </section>
+      <div className="border-t border-border p-3">
+        <a
+          href="https://semaphor-analytics.github.io/semaphor-data-app-components/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2 rounded-md px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <PackageIcon className="size-3.5" />
+          Public gallery
+          <ArrowUpRightIcon className="ml-auto size-3.5 opacity-60" />
+        </a>
       </div>
-    </main>
+    </aside>
+  )
+}
+
+function NavGroup({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon?: LucideIcon
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="mb-4">
+      <div className="flex items-center gap-1.5 px-2.5 pt-3 pb-1.5 text-[11px] font-medium tracking-wider text-muted-foreground/80 uppercase">
+        {Icon ? <Icon className="size-3.5" /> : null}
+        {label}
+      </div>
+      <div className="flex flex-col gap-0.5">{children}</div>
+    </div>
+  )
+}
+
+function NavItem({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: LucideIcon
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors",
+        active
+          ? "bg-accent font-medium text-foreground"
+          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+      )}
+    >
+      <Icon
+        className={cn(
+          "size-4 shrink-0 transition-colors",
+          active
+            ? "text-brand"
+            : "text-muted-foreground/70 group-hover:text-foreground",
+        )}
+      />
+      <span className="truncate">{label}</span>
+    </button>
+  )
+}
+
+function MobileNavSelect({
+  selection,
+  onSelect,
+}: {
+  selection: Selection
+  onSelect: (next: Selection) => void
+}) {
+  const value = `${selection.kind}:${selection.id}`
+
+  return (
+    <div className="lg:hidden">
+      <Select
+        value={value}
+        onValueChange={(next) => {
+          if (!next) return
+          const [kind, id] = next.split(":")
+          if (kind === "dashboard") {
+            onSelect({ kind: "dashboard", id: id as DashboardSampleId })
+          } else {
+            onSelect({ kind: "component", id: id as RegistryItemId })
+          }
+        }}
+      >
+        <SelectTrigger size="sm" className="w-40">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Dashboards</SelectLabel>
+            {dashboardSamples.map((sample) => (
+              <SelectItem key={sample.id} value={`dashboard:${sample.id}`}>
+                {sample.title}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>Components</SelectLabel>
+            {registryItems.map((item) => (
+              <SelectItem key={item.id} value={`component:${item.id}`}>
+                {item.title}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
@@ -307,13 +487,14 @@ function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
   const options = [
     { value: "light" as const, label: "Light", icon: SunIcon },
-    { value: "dark" as const, label: "Dark", icon: MoonIcon },
     { value: "system" as const, label: "System", icon: MonitorIcon },
+    { value: "dark" as const, label: "Dark", icon: MoonIcon },
   ]
 
   return (
     <div
-      className="flex h-8 items-center rounded-2xl border bg-background p-0.5"
+      className="flex h-8 items-center gap-0.5 rounded-md border border-border bg-muted/60 p-0.5"
+      role="group"
       aria-label="Theme"
     >
       {options.map((option) => {
@@ -324,19 +505,18 @@ function ThemeSwitcher() {
           <button
             key={option.value}
             type="button"
-            className={[
-              "inline-flex h-7 items-center gap-1.5 rounded-2xl px-2.5 text-xs font-medium transition-colors",
+            className={cn(
+              "inline-flex size-7 items-center justify-center rounded-sm transition-colors",
               selected
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            ].join(" ")}
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
             aria-label={`Use ${option.label.toLowerCase()} theme`}
             aria-pressed={selected}
             title={option.label}
             onClick={() => setTheme(option.value)}
           >
-            <Icon className="size-3.5" aria-hidden />
-            <span className="hidden sm:inline">{option.label}</span>
+            <Icon className="size-4" aria-hidden />
           </button>
         )
       })}
@@ -344,39 +524,154 @@ function ThemeSwitcher() {
   )
 }
 
-function ComponentCatalogCard({
+/* ------------------------------------------------------------------ */
+/* Dashboard canvas                                                   */
+/* ------------------------------------------------------------------ */
+
+function DashboardCanvas({
+  sample,
+}: {
+  sample: (typeof dashboardSamples)[number]
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <Badge variant="secondary" className="w-fit">
+          {sample.eyebrow}
+        </Badge>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {sample.heading}
+          </h1>
+          <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+            {sample.description}
+          </p>
+        </div>
+      </div>
+
+      {sample.bleed ? (
+        sample.render()
+      ) : (
+        <div className="rounded-lg border border-border bg-muted/40 p-4 lg:p-6 dark:bg-muted/20">
+          {sample.render()}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Component detail                                                   */
+/* ------------------------------------------------------------------ */
+
+function ComponentDetail({
   item,
-  selected,
-  onSelect,
+  serverControls,
+  setServerControls,
+  matrixControls,
+  setMatrixControls,
 }: {
   item: RegistryItem
-  selected: boolean
-  onSelect: () => void
+  serverControls: ServerTableExampleControls
+  setServerControls: Dispatch<SetStateAction<ServerTableExampleControls>>
+  matrixControls: MatrixTableExampleControls
+  setMatrixControls: Dispatch<SetStateAction<MatrixTableExampleControls>>
 }) {
   const Icon = item.icon
 
   return (
-    <button
-      type="button"
-      className={[
-        "rounded-lg border bg-card p-4 text-left transition-colors hover:bg-secondary/60",
-        selected ? "border-primary" : "",
-      ].join(" ")}
-      onClick={onSelect}
-    >
-      <div className="flex flex-col gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Icon className="size-4 text-muted-foreground" />
-            <span className="font-medium">{item.title}</span>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 border-b border-border pb-6">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-card">
+            <Icon className="size-5 text-brand" />
+          </span>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {item.title}
+              </h1>
+              <Badge variant="secondary">{item.category}</Badge>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              {item.summary}
+            </p>
           </div>
-          <Badge variant="outline">{item.category}</Badge>
         </div>
-        <p className="text-sm leading-6 text-muted-foreground">{item.summary}</p>
+
+        <InstallCommand item={item} />
       </div>
-    </button>
+
+      <Tabs defaultValue="preview" className="flex flex-col gap-5">
+        <TabsList variant="line" className="w-fit">
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="preview">
+          <PreviewStage>
+            {renderPreview({
+              item,
+              serverControls,
+              setServerControls,
+              matrixControls,
+              setMatrixControls,
+            })}
+          </PreviewStage>
+        </TabsContent>
+
+        <TabsContent value="details">
+          <DetailsPanel item={item} />
+        </TabsContent>
+      </Tabs>
+    </div>
   )
 }
+
+function InstallCommand({ item }: { item: RegistryItem }) {
+  const command = item.installs
+    .map(
+      (name) =>
+        `npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/${name}`,
+    )
+    .join("\n")
+  const [copied, setCopied] = useState(false)
+
+  const copy = () => {
+    void navigator.clipboard?.writeText(command)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
+      <TerminalIcon className="size-4 shrink-0 text-muted-foreground" />
+      <code className="min-w-0 flex-1 overflow-x-auto font-mono text-xs whitespace-nowrap text-foreground/90">
+        {command}
+      </code>
+      <Button variant="ghost" size="sm" onClick={copy} aria-label="Copy install command">
+        {copied ? (
+          <CheckIcon className="text-success" data-icon="inline-start" />
+        ) : (
+          <CopyIcon data-icon="inline-start" />
+        )}
+        {copied ? "Copied" : "Copy"}
+      </Button>
+    </div>
+  )
+}
+
+function PreviewStage({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/40 p-4 lg:p-6 dark:bg-muted/20">
+      {children}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Previews                                                           */
+/* ------------------------------------------------------------------ */
 
 function renderPreview({
   item,
@@ -530,6 +825,12 @@ function MetricKpisPreview() {
     },
   }
 
+  const previewScope: CardScopeFilter[] = [
+    { id: "order_date", label: "Order date", value: "Last 6 months" },
+    { id: "region", label: "Region", value: "North" },
+    { id: "segment", label: "Segment", value: "2 selected" },
+  ]
+
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
       <SemaphorMetricKpiCard
@@ -537,15 +838,28 @@ function MetricKpisPreview() {
         label="Revenue"
         description="Primary SDK metric value"
         format="currency-compact"
+        trend={[612000, 668000, 705000, 742000, 798000, 842500]}
+        headerAccessory={<CardScopeBadge compact filters={previewScope} />}
       />
       <SemaphorMultiMeasureKpis
         result={metricResult}
         title="Performance summary"
         description="Secondary measures render from result.measures without reusing the primary comparison badge."
+        headerAccessory={<CardScopeBadge compact filters={previewScope} />}
         measures={[
-          { key: "revenue", label: "Revenue", format: "currency-compact" },
-          { key: "orders", label: "Orders", format: "number" },
-          { key: "conversion_rate", label: "Conversion", format: "percent" },
+          {
+            key: "revenue",
+            label: "Revenue",
+            format: "currency-compact",
+            delta: 12.4,
+          },
+          { key: "orders", label: "Orders", format: "number", delta: 8.1 },
+          {
+            key: "conversion_rate",
+            label: "Conversion",
+            format: "percent",
+            delta: -1.2,
+          },
         ]}
       />
     </div>
@@ -743,7 +1057,7 @@ function PreviewState({
   children: ReactNode
 }) {
   return (
-    <div className="flex min-h-48 flex-col gap-3 rounded-lg border bg-card p-4">
+    <div className="flex min-h-48 flex-col gap-3 rounded-lg border border-border bg-card p-4">
       <div className="text-sm font-medium">{title}</div>
       <Separator />
       <div>{children}</div>
@@ -751,66 +1065,46 @@ function PreviewState({
   )
 }
 
-function InstallPanel({ item }: { item: RegistryItem }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Install {item.title}</CardTitle>
-        <CardDescription>
-          Run this from a React app that already has shadcn and react-semaphor.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <CodeBlock
-          code={item.installs
-            .map(
-              (name) =>
-                `npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/${name}`,
-            )
-            .join("\n")}
-        />
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-medium">Installed dependencies</div>
-          <div className="flex flex-wrap gap-2">
-            {item.dependencies.map((dependency) => (
-              <Badge key={dependency} variant="secondary">
-                {dependency}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 function DetailsPanel({ item }: { item: RegistryItem }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>When to use it</CardTitle>
-        <CardDescription>{item.bestFor}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid gap-3 md:grid-cols-3">
-          <DetailPoint
-            icon={CheckCircle2Icon}
-            title="Source install"
-            description="The shadcn CLI copies component source into the app so teams can customize it."
-          />
-          <DetailPoint
-            icon={LayersIcon}
-            title="Composable"
-            description="Items can be installed independently or combined by create-semaphor-app presets."
-          />
-          <DetailPoint
-            icon={DatabaseIcon}
-            title="SDK shaped"
-            description="Previews use demo data, while components are designed for react-semaphor Data App results."
-          />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-5">
+      <Card>
+        <CardHeader>
+          <CardTitle>When to use it</CardTitle>
+          <CardDescription>{item.bestFor}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-5">
+          <div className="grid gap-3 md:grid-cols-3">
+            <DetailPoint
+              icon={CheckCircle2Icon}
+              title="Source install"
+              description="The shadcn CLI copies component source into the app so teams can customize it."
+            />
+            <DetailPoint
+              icon={LayersIcon}
+              title="Composable"
+              description="Items can be installed independently or combined by create-semaphor-app presets."
+            />
+            <DetailPoint
+              icon={DatabaseIcon}
+              title="SDK shaped"
+              description="Previews use demo data, while components are designed for react-semaphor Data App results."
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 border-t border-border pt-4">
+            <div className="text-sm font-medium">Installed dependencies</div>
+            <div className="flex flex-wrap gap-1.5">
+              {item.dependencies.map((dependency) => (
+                <Badge key={dependency} variant="outline" className="font-mono">
+                  {dependency}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
@@ -824,19 +1118,11 @@ function DetailPoint({
   description: string
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-md border bg-card p-4">
+    <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 p-4">
       <Icon className="size-4 text-muted-foreground" />
       <div className="text-sm font-medium">{title}</div>
       <p className="text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
-  )
-}
-
-function CodeBlock({ code }: { code: string }) {
-  return (
-    <pre className="overflow-x-auto rounded-md border bg-muted/40 p-4 text-xs leading-6">
-      <code>{code}</code>
-    </pre>
   )
 }
 

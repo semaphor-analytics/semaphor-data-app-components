@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CheckIcon, ChevronDownIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -55,22 +55,40 @@ export function MultiSelectFilter({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-xs transition-colors hover:bg-secondary"
-          />
-        }
-      >
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium text-foreground">{triggerValue}</span>
-        <ChevronDownIcon className="size-3.5 text-muted-foreground" />
-      </PopoverTrigger>
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+        <PopoverTrigger
+          render={
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-full items-center gap-2 rounded-l-md pr-2 pl-2.5 transition-colors hover:bg-secondary",
+                value.length === 0 && "rounded-r-md",
+              )}
+            />
+          }
+        >
+          <span className="text-muted-foreground">{label}</span>
+          <span className="font-medium text-foreground">{triggerValue}</span>
+          <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+        </PopoverTrigger>
+        {value.length > 0 ? (
+          <>
+            <span className="w-px self-stretch bg-border" aria-hidden />
+            <button
+              type="button"
+              aria-label={`Clear ${label}`}
+              className="inline-flex h-full items-center px-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              onClick={() => onChange([])}
+            >
+              <XIcon className="size-3.5" />
+            </button>
+          </>
+        ) : null}
+      </div>
 
       <PopoverContent
         align={align}
-        className="w-64 p-0"
+        className="w-64 gap-0 p-0"
       >
         <Command>
           <CommandInput placeholder={searchPlaceholder ?? `Search ${label.toLowerCase()}...`} />
@@ -88,13 +106,13 @@ export function MultiSelectFilter({
                   >
                     <div
                       className={cn(
-                        "flex size-4 shrink-0 items-center justify-center rounded-sm border",
+                        "flex size-3.5 shrink-0 items-center justify-center rounded-sm border",
                         selected
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-card",
                       )}
                     >
-                      {selected ? <CheckIcon className="size-3" /> : null}
+                      {selected ? <CheckIcon className="size-2.5" /> : null}
                     </div>
                     <span className="flex-1 truncate">{option.label}</span>
                   </CommandItem>
@@ -103,28 +121,28 @@ export function MultiSelectFilter({
             </CommandGroup>
           </CommandList>
         </Command>
-        <div className="flex items-center justify-between gap-2 border-t px-2 py-2 text-[11px] text-muted-foreground">
-          {value.length > 0 ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-6 px-2 text-xs"
-              onClick={() => onChange([])}
-            >
-              Clear
-            </Button>
-          ) : (
-            <span />
-          )}
-          <span className="tabular-nums">
-            {value.length === 0
-              ? `${options.length} options`
-              : `${value.length} of ${options.length} selected`}
-          </span>
+        <div className="flex items-center justify-between gap-2 border-t px-1.5 py-1 text-[11px] text-muted-foreground">
+          <div className="flex min-w-0 items-center gap-1">
+            {value.length > 0 ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs"
+                onClick={() => onChange([])}
+              >
+                Clear
+              </Button>
+            ) : null}
+            <span className="truncate px-1 tabular-nums">
+              {value.length === 0
+                ? `${options.length} options`
+                : `${value.length} of ${options.length} selected`}
+            </span>
+          </div>
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 px-2 text-xs"
+            className="h-6 shrink-0 px-2 text-xs"
             onClick={() => setOpen(false)}
           >
             Done

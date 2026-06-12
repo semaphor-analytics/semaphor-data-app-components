@@ -1,21 +1,15 @@
-import { useMemo, useState } from "react"
-import { BarChart3Icon, LayoutDashboardIcon, Table2Icon } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { SemaphorInputHandle } from "react-semaphor/data-app-sdk"
 
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { CardScopeBadge, type CardScopeFilter } from "../card-scope-badge"
 import {
   SemaphorActiveFilterSummaryBadge,
   SemaphorDateRangeFilter,
@@ -59,50 +53,28 @@ const trendData = [
   { label: "Jun", revenue: 418000 },
 ]
 
+const revenueTrendSpark = trendData.map((point) => point.revenue)
+
 const regionRevenue = [
   { label: "North", value: 842500 },
   { label: "South", value: 618300 },
   { label: "West", value: 542100 },
 ]
 
-export function ComposedSamples() {
-  return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <LayoutDashboardIcon className="size-5 text-muted-foreground" />
-          <h2 className="text-xl font-semibold tracking-normal">
-            Data App Samples
-          </h2>
-        </div>
-        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Curated page patterns built from the registry components. Use these as
-          the visual baseline for generated apps instead of starting from blank
-          cards or ad hoc layouts.
-        </p>
-      </div>
+const campaignRevenue = [
+  { label: "Spring", value: 612000 },
+  { label: "Expansion", value: 548000 },
+  { label: "Partner", value: 470000 },
+  { label: "Renewal", value: 372900 },
+]
 
-      <Tabs defaultValue="executive" className="flex flex-col gap-4">
-        <TabsList className="w-fit">
-          <TabsTrigger value="executive">Executive</TabsTrigger>
-          <TabsTrigger value="operations">Operations</TabsTrigger>
-          <TabsTrigger value="matrix">Matrix</TabsTrigger>
-        </TabsList>
-        <TabsContent value="executive">
-          <ExecutiveScorecardSample />
-        </TabsContent>
-        <TabsContent value="operations">
-          <OperationsTableSample />
-        </TabsContent>
-        <TabsContent value="matrix">
-          <MatrixDrilldownSample />
-        </TabsContent>
-      </Tabs>
-    </section>
-  )
-}
+const segmentSplit = [
+  { label: "Enterprise", value: 1062000 },
+  { label: "Mid-market", value: 624000 },
+  { label: "SMB", value: 316900 },
+]
 
-function ExecutiveScorecardSample() {
+export function ExecutiveScorecardSample() {
   const [region, setRegion] = useState<DemoOptionValue | undefined>("north")
   const [segments, setSegments] = useState<DemoOptionValue[]>([
     "enterprise",
@@ -143,6 +115,10 @@ function ExecutiveScorecardSample() {
     [dateRange, region, segments],
   )
 
+  const summaries = getSemaphorActiveFilterSummaries(handles)
+  const scopedBy = (ids: string[]): CardScopeFilter[] =>
+    summaries.filter((summary) => ids.includes(summary.id))
+
   const metricResult = {
     status: "success" as const,
     value: 2002900,
@@ -156,194 +132,473 @@ function ExecutiveScorecardSample() {
   }
 
   return (
-    <div className="rounded-lg border bg-background">
-      <div className="flex flex-col gap-4 border-b p-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex flex-col gap-1">
-          <Badge variant="secondary" className="w-fit">
-            Sales analytics
-          </Badge>
-          <h3 className="text-2xl font-semibold tracking-normal">
-            Revenue performance
-          </h3>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            KPI summary, scoped filters, trend context, category comparison, and
-            a compact records table in one scannable page.
-          </p>
-        </div>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SemaphorActiveFilterSummaryBadge
-          filters={getSemaphorActiveFilterSummaries(handles)}
+          filters={summaries}
         />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 border-b px-5 py-3">
-        <SemaphorDateRangeFilter handle={handles[0]} />
-        <SemaphorSingleSelectFilter
-          label="Region"
-          handle={handles[1]}
-          hideSearch
-        />
-        <SemaphorMultiSelectFilter label="Segment" handle={handles[2]} />
-      </div>
-
-      <div className="flex flex-col gap-5 p-5">
-        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <SemaphorMetricKpiCard
-            result={metricResult}
-            label="Revenue"
-            description="Primary metric"
-            format="currency-compact"
-            comparisonLabel="vs previous period"
+        <div className="flex flex-wrap items-center gap-2">
+          <SemaphorDateRangeFilter handle={handles[0]} />
+          <SemaphorSingleSelectFilter
+            label="Region"
+            handle={handles[1]}
+            hideSearch
           />
-          <SemaphorMultiMeasureKpis
-            result={metricResult}
-            title="Sales summary"
-            description="Related measures from one governed metric result."
-            measures={[
-              { key: "revenue", label: "Revenue", format: "currency-compact" },
-              { key: "orders", label: "Orders", format: "number" },
-              { key: "conversion_rate", label: "Conversion", format: "percent" },
-            ]}
-          />
+          <SemaphorMultiSelectFilter label="Segment" handle={handles[2]} />
         </div>
+      </div>
 
-        <div className="grid gap-4 lg:grid-cols-5">
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle>Revenue trend</CardTitle>
-              <CardDescription>
-                Use line or area charts when the reading task is direction over
-                time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MiniTrendChart data={trendData} />
-            </CardContent>
-          </Card>
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Revenue by region</CardTitle>
-              <CardDescription>
-                Ranked categories should be bounded and sorted.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MiniRankedBars data={regionRevenue} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <ServerDataTableView
-          title="Recent campaign orders"
-          description="A bounded records preview can sit below the KPI and chart summary."
-          columns={ordersColumns}
-          rows={ordersRows.slice(0, 8)}
-          totalRow={getDisplayedTotals(ordersRows.slice(0, 8))}
-          height={320}
-          enableColumnVisibility={false}
-          enableDensityToggle={false}
+      <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <SemaphorMetricKpiCard
+          result={metricResult}
+          label="Revenue"
+          description="Primary metric"
+          format="currency-compact"
+          comparisonLabel="vs previous period"
+          trend={revenueTrendSpark}
+          headerAccessory={<CardScopeBadge compact filters={summaries} />}
+        />
+        <SemaphorMultiMeasureKpis
+          result={metricResult}
+          title="Sales summary"
+          description="Related measures from one governed metric result."
+          headerAccessory={<CardScopeBadge compact filters={summaries} />}
+          measures={[
+            {
+              key: "revenue",
+              label: "Revenue",
+              format: "currency-compact",
+              delta: 12.4,
+            },
+            { key: "orders", label: "Orders", format: "number", delta: 8.1 },
+            {
+              key: "conversion_rate",
+              label: "Conversion",
+              format: "percent",
+              delta: -1.2,
+            },
+          ]}
         />
       </div>
-    </div>
-  )
-}
 
-function OperationsTableSample() {
-  return (
-    <div className="rounded-lg border bg-background p-5">
-      <div className="mb-5 flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Table2Icon className="size-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold tracking-normal">
-            Operational records page
-          </h3>
-        </div>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          For exploratory or drill-through results, make the server-backed table
-          the primary experience and keep pagination, sorting, and totals
-          explicit.
-        </p>
+      <div className="grid gap-4 lg:grid-cols-5">
+        <ChartCard
+          title="Revenue trend"
+          description="Use line or area charts when the reading task is direction over time."
+          scope={scopedBy(["order_date", "region"])}
+          className="lg:col-span-3"
+        >
+          <MiniAreaChart data={trendData} />
+        </ChartCard>
+        <ChartCard
+          title="Revenue by segment"
+          description="Donut charts work for part-to-whole splits with few slices."
+          scope={scopedBy(["order_date", "region"])}
+          compactScope
+          className="lg:col-span-2"
+        >
+          <MiniDonutChart data={segmentSplit} />
+        </ChartCard>
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-5">
+        <ChartCard
+          title="Revenue by campaign"
+          description="Column charts compare a handful of named categories."
+          scope={scopedBy(["order_date", "region", "segment"])}
+          className="lg:col-span-3"
+        >
+          <MiniBarChart data={campaignRevenue} />
+        </ChartCard>
+        <ChartCard
+          title="Revenue by region"
+          description="Ranked categories should be bounded and sorted."
+          scope={scopedBy(["order_date", "segment"])}
+          compactScope
+          className="lg:col-span-2"
+        >
+          <MiniRankedBars data={regionRevenue} />
+        </ChartCard>
+      </div>
+
       <ServerDataTableView
-        title="All campaign orders"
-        description="Server-owned pagination and sorting pattern for records results."
+        title="Recent campaign orders"
+        description="A bounded records preview can sit below the KPI and chart summary."
         columns={ordersColumns}
-        rows={ordersRows.slice(0, 25)}
-        pagination={{
-          page: 1,
-          pageSize: 25,
-          pageCount: 10,
-          totalRows: 240,
-          hasPreviousPage: false,
-          hasNextPage: true,
-        }}
-        totalRow={getDisplayedTotals(ordersRows.slice(0, 25))}
-        sort={{ key: "revenue", direction: "desc" }}
-        height={460}
+        rows={ordersRows.slice(0, 8)}
+        totalRow={getDisplayedTotals(ordersRows.slice(0, 8))}
+        height={320}
+        enableColumnVisibility={false}
+        enableDensityToggle={false}
       />
     </div>
   )
 }
 
-function MatrixDrilldownSample() {
+export function OperationsTableSample() {
   return (
-    <div className="rounded-lg border bg-background p-5">
-      <div className="mb-5 flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <BarChart3Icon className="size-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold tracking-normal">
-            Matrix analysis page
-          </h3>
-        </div>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Use matrix views for pivot-style comparisons where row and column
-          hierarchy matters more than a chart.
-        </p>
-      </div>
-      <MatrixTableView
-        title="Campaign revenue by segment"
-        description="Expandable row and column hierarchy with sticky headers."
-        grid={campaignRevenueMatrix}
-        height={460}
-      />
-    </div>
+    <ServerDataTableView
+      title="All campaign orders"
+      description="Server-owned pagination and sorting pattern for records results."
+      columns={ordersColumns}
+      rows={ordersRows.slice(0, 25)}
+      pagination={{
+        page: 1,
+        pageSize: 25,
+        pageCount: 10,
+        totalRows: 240,
+        hasPreviousPage: false,
+        hasNextPage: true,
+      }}
+      totalRow={getDisplayedTotals(ordersRows.slice(0, 25))}
+      sort={{ key: "revenue", direction: "desc" }}
+      height={560}
+    />
   )
 }
 
-function MiniTrendChart({
+export function MatrixDrilldownSample() {
+  return (
+    <MatrixTableView
+      title="Campaign revenue by segment"
+      description="Expandable row and column hierarchy with sticky headers."
+      grid={campaignRevenueMatrix}
+      height={560}
+    />
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Chart shell + charts                                               */
+/* ------------------------------------------------------------------ */
+
+function ChartCard({
+  title,
+  description,
+  scope,
+  compactScope = false,
+  className,
+  children,
+}: {
+  title: string
+  description?: string
+  scope?: CardScopeFilter[]
+  compactScope?: boolean
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        {description ? <CardDescription>{description}</CardDescription> : null}
+        {scope && scope.length > 0 ? (
+          <CardAction>
+            <CardScopeBadge filters={scope} compact={compactScope} />
+          </CardAction>
+        ) : null}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  )
+}
+
+function useMeasuredWidth() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(600)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const observer = new ResizeObserver((entries) => {
+      const next = entries[0]?.contentRect.width
+      if (next && next > 0) setWidth(next)
+    })
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return [ref, width] as const
+}
+
+function MiniAreaChart({
   data,
 }: {
   data: Array<{ label: string; revenue: number }>
 }) {
-  const max = Math.max(...data.map((point) => point.revenue))
-  const points = data
-    .map((point, index) => {
-      const x = (index / Math.max(1, data.length - 1)) * 100
-      const y = 100 - (point.revenue / max) * 82
-      return `${x},${y}`
-    })
+  const [ref, width] = useMeasuredWidth()
+  const height = 184
+  const padTop = 16
+  const padBottom = 10
+  const padX = 3
+
+  const values = data.map((point) => point.revenue)
+  const max = Math.max(...values)
+  const min = Math.min(...values)
+  const range = max - min || 1
+  const lo = min - range * 0.18
+  const span = max - lo || 1
+
+  const plotWidth = Math.max(width - padX * 2, 1)
+  const plotHeight = height - padTop - padBottom
+  const baseline = height - padBottom
+
+  const xs = data.map(
+    (_, index) => padX + (index / Math.max(1, data.length - 1)) * plotWidth,
+  )
+  const ys = data.map(
+    (point) => padTop + (1 - (point.revenue - lo) / span) * plotHeight,
+  )
+
+  const linePath = xs
+    .map((x, index) => `${index === 0 ? "M" : "L"}${x.toFixed(1)},${ys[index].toFixed(1)}`)
     .join(" ")
+  const areaPath = `${linePath} L${xs[xs.length - 1].toFixed(1)},${baseline} L${xs[0].toFixed(1)},${baseline} Z`
+
+  const gridCount = 4
 
   return (
     <div className="flex flex-col gap-3">
-      <svg
-        viewBox="0 0 100 110"
-        role="img"
-        aria-label="Revenue trend"
-        className="h-48 w-full overflow-visible"
-        preserveAspectRatio="none"
-      >
-        <polyline
-          points={points}
-          fill="none"
-          stroke="var(--chart-2)"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <div className="flex justify-between text-xs text-muted-foreground">
+      <div ref={ref} className="relative w-full" style={{ height }}>
+        <svg
+          width={width}
+          height={height}
+          role="img"
+          aria-label="Revenue trend"
+          className="overflow-visible"
+        >
+          {Array.from({ length: gridCount }).map((_, index) => {
+            const y = padTop + (index / (gridCount - 1)) * plotHeight
+            return (
+              <line
+                key={index}
+                x1={padX}
+                y1={y}
+                x2={padX + plotWidth}
+                y2={y}
+                stroke="var(--border)"
+                strokeWidth={1}
+                strokeDasharray={index === gridCount - 1 ? "0" : "2 4"}
+              />
+            )
+          })}
+          <path d={areaPath} fill="var(--brand)" fillOpacity={0.1} />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="var(--brand)"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {xs.map((x, index) => {
+            const last = index === xs.length - 1
+            return (
+              <g key={index}>
+                <circle
+                  cx={x}
+                  cy={ys[index]}
+                  r={last ? 4 : 2.75}
+                  fill="var(--background)"
+                  stroke="var(--brand)"
+                  strokeWidth={2}
+                />
+                <circle
+                  cx={x}
+                  cy={ys[index]}
+                  r={14}
+                  fill="transparent"
+                  style={{ pointerEvents: "all" }}
+                >
+                  <title>{`${data[index].label}: ${formatCurrencyCompact(data[index].revenue)}`}</title>
+                </circle>
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+      <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
         {data.map((point) => (
           <span key={point.label}>{point.label}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MiniBarChart({
+  data,
+}: {
+  data: Array<{ label: string; value: number }>
+}) {
+  const [ref, width] = useMeasuredWidth()
+  const height = 196
+  const padTop = 20
+  const padBottom = 26
+
+  const max = Math.max(...data.map((row) => row.value))
+  const plotHeight = height - padTop - padBottom
+  const slot = width / data.length
+  const barWidth = Math.min(56, slot * 0.5)
+  const gridCount = 4
+
+  return (
+    <div ref={ref} className="relative w-full" style={{ height }}>
+      <svg width={width} height={height} className="overflow-visible">
+        {Array.from({ length: gridCount }).map((_, index) => {
+          const y = padTop + (index / (gridCount - 1)) * plotHeight
+          return (
+            <line
+              key={index}
+              x1={0}
+              y1={y}
+              x2={width}
+              y2={y}
+              stroke="var(--border)"
+              strokeWidth={1}
+              strokeDasharray={index === gridCount - 1 ? "0" : "2 4"}
+            />
+          )
+        })}
+        {data.map((row, index) => {
+          const barHeight = max > 0 ? (row.value / max) * plotHeight : 0
+          const x = slot * index + (slot - barWidth) / 2
+          const y = padTop + (plotHeight - barHeight)
+          return (
+            <g key={row.label}>
+              <rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={Math.max(barHeight, 2)}
+                rx={3}
+                fill="var(--brand)"
+              />
+              <rect
+                x={slot * index}
+                y={padTop}
+                width={slot}
+                height={plotHeight}
+                fill="transparent"
+                style={{ pointerEvents: "all" }}
+              >
+                <title>{`${row.label}: ${formatCurrencyCompact(row.value)}`}</title>
+              </rect>
+              <text
+                x={x + barWidth / 2}
+                y={y - 7}
+                textAnchor="middle"
+                fontSize={10}
+                fill="var(--muted-foreground)"
+              >
+                {formatCurrencyCompact(row.value)}
+              </text>
+              <text
+                x={x + barWidth / 2}
+                y={height - 8}
+                textAnchor="middle"
+                fontSize={11}
+                fill="var(--muted-foreground)"
+              >
+                {row.label}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+const donutPalette = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+]
+
+function MiniDonutChart({
+  data,
+}: {
+  data: Array<{ label: string; value: number }>
+}) {
+  const total = data.reduce((sum, row) => sum + row.value, 0) || 1
+  const size = 144
+  const stroke = 20
+  const radius = (size - stroke) / 2 - 6
+  const center = size / 2
+  const circumference = 2 * Math.PI * radius
+
+  const segments = data.map((row, index) => {
+    const fraction = row.value / total
+    const length = fraction * circumference
+    const precedingLength = data
+      .slice(0, index)
+      .reduce((sum, prev) => sum + (prev.value / total) * circumference, 0)
+    return {
+      ...row,
+      length,
+      offset: -precedingLength,
+      color: donutPalette[index % donutPalette.length],
+      fraction,
+    }
+  })
+
+  return (
+    <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
+      <div className="relative size-36 shrink-0">
+        <svg viewBox={`0 0 ${size} ${size}`} className="size-36 -rotate-90">
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke="var(--muted)"
+            strokeWidth={stroke}
+          />
+          {segments.map((segment) => (
+            <circle
+              key={segment.label}
+              cx={center}
+              cy={center}
+              r={radius}
+              fill="none"
+              stroke={segment.color}
+              strokeWidth={stroke}
+              strokeDasharray={`${segment.length} ${circumference - segment.length}`}
+              strokeDashoffset={segment.offset}
+            >
+              <title>{`${segment.label}: ${formatCurrencyCompact(segment.value)} · ${Math.round(segment.fraction * 100)}%`}</title>
+            </circle>
+          ))}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-semibold tabular-nums">
+            {formatCurrencyCompact(total)}
+          </span>
+          <span className="text-[11px] text-muted-foreground">Total</span>
+        </div>
+      </div>
+      <div className="flex w-full min-w-0 flex-col gap-2.5">
+        {segments.map((segment) => (
+          <div key={segment.label} className="flex items-center gap-2 text-sm">
+            <span
+              className="size-2.5 shrink-0 rounded-[2px]"
+              style={{ background: segment.color }}
+            />
+            <span className="min-w-0 flex-1 truncate text-muted-foreground">
+              {segment.label}
+            </span>
+            <span className="shrink-0 font-medium tabular-nums">
+              {formatCurrencyCompact(segment.value)}
+            </span>
+            <span className="w-8 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
+              {Math.round(segment.fraction * 100)}%
+            </span>
+          </div>
         ))}
       </div>
     </div>
@@ -358,19 +613,30 @@ function MiniRankedBars({
   const max = Math.max(...data.map((row) => row.value))
 
   return (
-    <div className="flex flex-col gap-3">
-      {data.map((row) => (
-        <div key={row.label} className="grid grid-cols-[72px_1fr_72px] items-center gap-3 text-sm">
-          <span className="truncate text-muted-foreground">{row.label}</span>
-          <div className="h-3 overflow-hidden rounded-full bg-muted">
+    <div className="flex flex-col gap-3.5">
+      {data.map((row, index) => (
+        <div
+          key={row.label}
+          className="flex flex-col gap-1.5"
+          title={`${row.label}: ${formatCurrencyCompact(row.value)}`}
+        >
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2">
+              <span className="inline-flex size-4 items-center justify-center rounded-sm bg-muted text-[10px] font-medium text-muted-foreground tabular-nums">
+                {index + 1}
+              </span>
+              <span className="text-foreground">{row.label}</span>
+            </span>
+            <span className="font-medium tabular-nums">
+              {formatCurrencyCompact(row.value)}
+            </span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${Math.max(8, (row.value / max) * 100)}%` }}
+              className="h-full rounded-full bg-brand"
+              style={{ width: `${Math.max(6, (row.value / max) * 100)}%` }}
             />
           </div>
-          <span className="text-right tabular-nums">
-            {formatCurrencyCompact(row.value)}
-          </span>
         </div>
       ))}
     </div>

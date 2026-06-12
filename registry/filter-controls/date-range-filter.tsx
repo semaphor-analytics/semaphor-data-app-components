@@ -76,6 +76,10 @@ export function SemaphorDateRangeFilter({
       align={align}
       emptyLabel={emptyLabel}
       isValueActive={Boolean(activeValue ?? explicitDefaultValue)}
+      onClear={() => {
+        appliedDefaultKeyRef.current = null
+        handle.setValue(undefined)
+      }}
       onChange={(next) => {
         handle.setValue([formatDateValue(next.from), formatDateValue(next.to)])
       }}
