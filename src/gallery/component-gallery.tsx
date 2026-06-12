@@ -7,7 +7,6 @@ import {
 } from "react"
 import {
   AlertCircleIcon,
-  ArrowUpRightIcon,
   CheckCircle2Icon,
   CheckIcon,
   ChevronRightIcon,
@@ -20,7 +19,8 @@ import {
   LineChartIcon,
   MonitorIcon,
   MoonIcon,
-  PackageIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   SearchIcon,
   SunIcon,
   Table2Icon,
@@ -195,6 +195,7 @@ export function ComponentGallery() {
     latencyMs: 250,
     errorMode: "none",
   })
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const activeDashboard =
     selection.kind === "dashboard"
@@ -214,6 +215,7 @@ export function ComponentGallery() {
   return (
     <div className="flex h-svh overflow-hidden bg-background text-foreground">
       <GallerySidebar
+        open={sidebarOpen}
         selection={selection}
         onSelect={setSelection}
         search={search}
@@ -221,7 +223,16 @@ export function ComponentGallery() {
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/80 px-5 backdrop-blur-sm lg:px-10">
+        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-5 backdrop-blur-sm lg:px-10">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="-ml-1 hidden lg:inline-flex"
+            aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            onClick={() => setSidebarOpen((value) => !value)}
+          >
+            {sidebarOpen ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />}
+          </Button>
           <div className="flex min-w-0 items-center gap-2 text-sm">
             <span className="hidden text-muted-foreground sm:inline">
               {breadcrumbSection}
@@ -235,22 +246,6 @@ export function ComponentGallery() {
           <div className="ml-auto flex items-center gap-2">
             <MobileNavSelect selection={selection} onSelect={setSelection} />
             <ThemeSwitcher />
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={
-                <a
-                  href="https://github.com/semaphor-analytics/semaphor-data-app-components"
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              }
-            >
-              <PackageIcon data-icon="inline-start" />
-              <span className="hidden sm:inline">Registry</span>
-              <ArrowUpRightIcon data-icon="inline-end" className="opacity-60" />
-            </Button>
           </div>
         </header>
 
@@ -279,11 +274,13 @@ export function ComponentGallery() {
 /* ------------------------------------------------------------------ */
 
 function GallerySidebar({
+  open,
   selection,
   onSelect,
   search,
   onSearchChange,
 }: {
+  open: boolean
   selection: Selection
   onSelect: (next: Selection) => void
   search: string
@@ -303,7 +300,12 @@ function GallerySidebar({
   })).filter((group) => group.items.length > 0)
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+    <aside
+      className={cn(
+        "hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar",
+        open ? "lg:flex" : "lg:hidden",
+      )}
+    >
       <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
         <SemaphorIcon className="size-5 text-brand" />
         <span className="text-sm font-semibold tracking-wide">Semaphor</span>
@@ -361,19 +363,6 @@ function GallerySidebar({
           </p>
         ) : null}
       </nav>
-
-      <div className="border-t border-border p-3">
-        <a
-          href="https://semaphor-analytics.github.io/semaphor-data-app-components/"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2 rounded-md px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          <PackageIcon className="size-3.5" />
-          Public gallery
-          <ArrowUpRightIcon className="ml-auto size-3.5 opacity-60" />
-        </a>
-      </div>
     </aside>
   )
 }
