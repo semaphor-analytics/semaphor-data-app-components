@@ -65,7 +65,7 @@ npm install
 npm run dev
 ```
 
-The local app is a fixture-backed component gallery. It does not require a
+The local app is a demo-data component gallery. It does not require a
 Semaphor project token or local Semaphor server.
 
 Useful checks:

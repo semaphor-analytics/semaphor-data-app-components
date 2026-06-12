@@ -7,9 +7,9 @@ import {
   ordersRows,
   sortRows,
   type CampaignOrderRow,
-} from "./records-fixtures";
+} from "./records-demo-data";
 
-export type FakeServerDataRequest = {
+export type DemoServerDataRequest = {
   page: number;
   pageSize: number;
   sort?: ServerDataTableSort;
@@ -18,20 +18,20 @@ export type FakeServerDataRequest = {
   totalRowCount?: number;
 };
 
-export type FakeServerDataResponse = {
+export type DemoServerDataResponse = {
   rows: CampaignOrderRow[];
   pagination: ServerDataTablePagination;
   totalRow: Partial<CampaignOrderRow>;
 };
 
-export async function fetchFakeOrders({
+export async function fetchDemoOrders({
   page,
   pageSize,
   sort,
   latencyMs = 0,
   errorMode = "none",
   totalRowCount = ordersRows.length,
-}: FakeServerDataRequest): Promise<FakeServerDataResponse> {
+}: DemoServerDataRequest): Promise<DemoServerDataResponse> {
   if (latencyMs > 0) {
     await new Promise((resolve) => window.setTimeout(resolve, latencyMs));
   }
@@ -58,4 +58,3 @@ export async function fetchFakeOrders({
     },
   };
 }
-

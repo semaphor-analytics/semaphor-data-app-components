@@ -3,8 +3,8 @@ import {
   ServerDataTableView,
   type ServerDataTableSort,
 } from "../../../registry/server-data-table/view";
-import { fetchFakeOrders, type FakeServerDataResponse } from "../fixtures/fake-server";
-import { ordersColumns } from "../fixtures/records-fixtures";
+import { fetchDemoOrders, type DemoServerDataResponse } from "../demo-data/demo-server";
+import { ordersColumns } from "../demo-data/records-demo-data";
 
 export type ServerTableExampleControls = {
   pageSize: number;
@@ -41,7 +41,7 @@ export function ServerDataTableBasicExample({
   ].join("|");
   const [state, setState] = useState<{
     requestKey: string;
-    response: FakeServerDataResponse | null;
+    response: DemoServerDataResponse | null;
     error: unknown;
   }>({ requestKey: "", response: null, error: null });
 
@@ -53,7 +53,7 @@ export function ServerDataTableBasicExample({
   useEffect(() => {
     let active = true;
 
-    fetchFakeOrders(request)
+    fetchDemoOrders(request)
       .then((nextResponse) => {
         if (!active) return;
         setState({ requestKey, response: nextResponse, error: null });
@@ -71,7 +71,7 @@ export function ServerDataTableBasicExample({
   return (
     <ServerDataTableView
       title="Campaign orders"
-      description="Fixture-backed example with server-owned pagination, sorting, loading, errors, totals, and bounded height."
+      description="Demo data example with server-owned pagination, sorting, loading, errors, totals, and bounded height."
       columns={ordersColumns}
       rows={response?.rows ?? []}
       pagination={response?.pagination ?? { page, pageSize, totalRows: 0 }}

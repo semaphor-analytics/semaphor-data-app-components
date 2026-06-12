@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MatrixGridProjection } from "react-semaphor/data-app-sdk";
 import { MatrixTableView } from "../../../registry/matrix-table/view";
-import { campaignRevenueMatrix } from "../fixtures/matrix-fixtures";
+import { campaignRevenueMatrix } from "../demo-data/matrix-demo-data";
 
 export type MatrixTableExampleControls = {
   latencyMs: number;
@@ -26,7 +26,7 @@ export function MatrixTableBasicExample({
   useEffect(() => {
     let active = true;
 
-    fetchFakeMatrix({ latencyMs, errorMode })
+    fetchDemoMatrix({ latencyMs, errorMode })
       .then((grid) => {
         if (!active) return;
         setState({ requestKey, grid, error: null });
@@ -43,7 +43,7 @@ export function MatrixTableBasicExample({
 
   const description = useMemo(
     () =>
-      "Fixture-backed pivot using the same MatrixGridProjection shape returned by Semaphor matrix queries.",
+      "Demo data pivot using the same MatrixGridProjection shape returned by Semaphor matrix queries.",
     [],
   );
 
@@ -59,7 +59,7 @@ export function MatrixTableBasicExample({
   );
 }
 
-function fetchFakeMatrix({
+function fetchDemoMatrix({
   latencyMs,
   errorMode,
 }: MatrixTableExampleControls): Promise<MatrixGridProjection> {

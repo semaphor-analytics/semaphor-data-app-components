@@ -10,7 +10,7 @@ in the app source.
 
 - `core.ts`: reusable mechanics for SDK column mapping, pagination metadata,
   pagination summaries, and displayed numeric totals.
-- `ServerDataTableView`: pure table UI. Use with fixtures, fake servers, or any
+- `ServerDataTableView`: pure table UI. Use with demo data, demo servers, or any
   records-like result shape.
 - `SemaphorServerDataTable`: thin wrapper around `useSemaphorQuery` for
   governed `semaphor.records(...)` queries.

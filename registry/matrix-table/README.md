@@ -20,7 +20,7 @@ The view includes hierarchy controls for row and column axes:
 - `core.ts`: reusable mechanics for matrix result-to-grid projection, visible
   hierarchy projection, collapse state, path keys, sort state, and cell
   formatting.
-- `MatrixTableView`: pure matrix UI. Use with fixtures, fake servers, or SDK
+- `MatrixTableView`: pure matrix UI. Use with demo data, demo servers, or SDK
   matrix grid/result payloads.
 - `SemaphorMatrixTable`: thin wrapper around `useSemaphorQuery` for governed
   `semaphor.matrix(...)` queries.

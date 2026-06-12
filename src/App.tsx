@@ -1,4 +1,4 @@
-import { ComponentGallery } from "./playground/component-gallery"
+import { ComponentGallery } from "./gallery/component-gallery"
 
 export function App() {
   return <ComponentGallery />
