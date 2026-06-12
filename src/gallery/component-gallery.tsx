@@ -482,7 +482,6 @@ function MetricKpisPreview() {
       orders: 3241,
       conversion_rate: 18.6,
     },
-    intent: { label: "Revenue" },
   }
 
   return (
