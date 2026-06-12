@@ -15,7 +15,10 @@ import {
   Grid3X3Icon,
   LayersIcon,
   LineChartIcon,
+  MonitorIcon,
+  MoonIcon,
   PackageIcon,
+  SunIcon,
   Table2Icon,
   type LucideIcon,
 } from "lucide-react"
@@ -23,6 +26,7 @@ import type { SemaphorInputHandle } from "react-semaphor/data-app-sdk"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useTheme } from "@/components/theme-provider"
 import {
   Card,
   CardContent,
@@ -188,6 +192,7 @@ export function ComponentGallery() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            <ThemeSwitcher />
             <Button
               variant="outline"
               nativeButton={false}
@@ -295,6 +300,47 @@ export function ComponentGallery() {
         </section>
       </div>
     </main>
+  )
+}
+
+function ThemeSwitcher() {
+  const { theme, setTheme } = useTheme()
+  const options = [
+    { value: "light" as const, label: "Light", icon: SunIcon },
+    { value: "dark" as const, label: "Dark", icon: MoonIcon },
+    { value: "system" as const, label: "System", icon: MonitorIcon },
+  ]
+
+  return (
+    <div
+      className="flex h-8 items-center rounded-2xl border bg-background p-0.5"
+      aria-label="Theme"
+    >
+      {options.map((option) => {
+        const Icon = option.icon
+        const selected = theme === option.value
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            className={[
+              "inline-flex h-7 items-center gap-1.5 rounded-2xl px-2.5 text-xs font-medium transition-colors",
+              selected
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            ].join(" ")}
+            aria-label={`Use ${option.label.toLowerCase()} theme`}
+            aria-pressed={selected}
+            title={option.label}
+            onClick={() => setTheme(option.value)}
+          >
+            <Icon className="size-3.5" aria-hidden />
+            <span className="hidden sm:inline">{option.label}</span>
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

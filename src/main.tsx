@@ -7,7 +7,10 @@ import { ThemeProvider } from "@/components/theme-provider.tsx"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider>
+    <ThemeProvider
+      defaultTheme="light"
+      storageKey="semaphor-data-app-components-theme"
+    >
       <App />
     </ThemeProvider>
   </StrictMode>
