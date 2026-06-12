@@ -58,6 +58,98 @@
       ]
     },
     {
+      "name": "query-state-boundary",
+      "type": "registry:component",
+      "title": "Semaphor Query State Boundary",
+      "description": "SDK-shaped loading, error, empty, partial, and stale-data boundary for Semaphor Data App query results.",
+      "registryDependencies": ["alert", "badge", "button", "skeleton"],
+      "files": [
+        {
+          "path": "registry/query-state-boundary/index.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/query-state-boundary/index.ts"
+        },
+        {
+          "path": "registry/query-state-boundary/query-state-boundary.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/query-state-boundary/query-state-boundary.tsx"
+        }
+      ]
+    },
+    {
+      "name": "metric-kpis",
+      "type": "registry:block",
+      "title": "Semaphor Metric KPIs",
+      "description": "KPI cards and multi-measure KPI helpers for Semaphor metric query results.",
+      "registryDependencies": [
+        "semaphor-analytics/semaphor-data-app-components/query-state-boundary",
+        "badge",
+        "card"
+      ],
+      "files": [
+        {
+          "path": "registry/metric-kpis/index.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/metric-kpis/index.ts"
+        },
+        {
+          "path": "registry/metric-kpis/metric-kpis.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/metric-kpis/metric-kpis.tsx"
+        }
+      ]
+    },
+    {
+      "name": "filter-controls",
+      "type": "registry:block",
+      "title": "Semaphor Filter Controls",
+      "description": "Date range, active filter summary, single-select, and multi-select controls for Semaphor Data App input handles.",
+      "dependencies": ["date-fns"],
+      "registryDependencies": ["badge", "button", "calendar", "command", "popover"],
+      "files": [
+        {
+          "path": "registry/filter-controls/index.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/filter-controls/index.ts"
+        },
+        {
+          "path": "registry/filter-controls/active-filter-summary.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/active-filter-summary.tsx"
+        },
+        {
+          "path": "registry/filter-controls/date-range-filter.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/date-range-filter.tsx"
+        },
+        {
+          "path": "registry/filter-controls/date-range-picker.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/date-range-picker.tsx"
+        },
+        {
+          "path": "registry/filter-controls/filter-controls.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/filter-controls.tsx"
+        },
+        {
+          "path": "registry/filter-controls/multi-select-filter.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/multi-select-filter.tsx"
+        },
+        {
+          "path": "registry/filter-controls/option-adapter.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/filter-controls/option-adapter.ts"
+        },
+        {
+          "path": "registry/filter-controls/single-select-filter.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/filter-controls/single-select-filter.tsx"
+        }
+      ]
+    },
+    {
       "name": "matrix-table",
       "type": "registry:block",
       "title": "Semaphor Matrix Table",

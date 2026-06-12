@@ -2,6 +2,9 @@
 
 Reusable shadcn registry components for Semaphor Data Apps.
 
+Public gallery:
+https://semaphor-analytics.github.io/semaphor-data-app-components/
+
 This repo packages complex Data App UI mechanics as inspectable source files
 that can be installed into customer React apps with the shadcn CLI. The
 components consume public Semaphor Data App SDK result shapes. They do not own
@@ -23,6 +26,12 @@ when adapting the table mechanics into another table/grid/design system.
 ## Components
 
 - `query-state`: reusable loading, error, empty, and success states.
+- `query-state-boundary`: SDK-shaped boundary for raw `useSemaphorQuery`
+  results, including loading, error, empty, stale, and partial states.
+- `metric-kpis`: KPI cards and multi-measure KPI helpers for Semaphor metric
+  query results.
+- `filter-controls`: date range, active filter summary, single-select, and
+  multi-select controls for Semaphor Data App input handles.
 - `server-data-table`: bounded table with server-owned pagination and sorting.
 - `matrix-table`: bounded pivot/matrix table for `semaphor.matrix(...)`
   results.
@@ -32,13 +41,18 @@ when adapting the table mechanics into another table/grid/design system.
 From a React app that already uses shadcn and `react-semaphor`:
 
 ```bash
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/query-state-boundary
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/metric-kpis
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/filter-controls
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/server-data-table
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/matrix-table
 ```
 
-The `server-data-table` item installs `@tanstack/react-table` and the
-`query-state` item. The `matrix-table` item installs `query-state` and consumes
-the public Data App SDK matrix result/grid shape.
+The `metric-kpis` item installs `query-state-boundary`. The
+`filter-controls` item installs `date-fns` and shadcn calendar/command/popover
+primitives. The `server-data-table` item installs `@tanstack/react-table` and
+the `query-state` item. The `matrix-table` item installs `query-state` and
+consumes the public Data App SDK matrix result/grid shape.
 
 ## Local Development
 
@@ -66,6 +80,19 @@ After the GitHub repo is public, validate the registry with:
 
 ```bash
 npx shadcn@latest registry validate semaphor-analytics/semaphor-data-app-components
+```
+
+## Public Gallery Deployment
+
+The component gallery is published as a static GitHub Pages app from this repo.
+The workflow lives at `.github/workflows/deploy-gallery.yml` and deploys the
+Vite `dist/` output for pushes to `main`.
+
+GitHub Pages must be enabled for the repository with GitHub Actions as the
+source. The expected public URL is:
+
+```text
+https://semaphor-analytics.github.io/semaphor-data-app-components/
 ```
 
 ## Architecture Boundary
