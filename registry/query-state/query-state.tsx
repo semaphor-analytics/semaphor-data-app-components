@@ -81,11 +81,7 @@ function QueryStateSkeleton({
       role="status"
       aria-busy="true"
       aria-label={`${title} loading`}
-      className={cn(
-        "overflow-hidden rounded-md border bg-card",
-        "[&_[data-shimmer]]:bg-gradient-to-r [&_[data-shimmer]]:from-muted/30 [&_[data-shimmer]]:via-muted [&_[data-shimmer]]:to-muted/30",
-        className,
-      )}
+      className={cn("overflow-hidden rounded-md border bg-card", className)}
     >
       <div className="flex items-center gap-3 border-b bg-muted/40 px-3 py-2.5">
         {columnWidths.map((width, index) => (
@@ -136,19 +132,19 @@ function QueryStateError({
       role="alert"
       aria-label={`${title} failed to load`}
       className={cn(
-        "flex flex-col items-center gap-3 rounded-md border border-border/80 bg-card px-6 py-10 text-center",
+        "flex flex-col items-center justify-center gap-3 py-10 text-center",
         className,
       )}
     >
-      <div className="flex size-11 items-center justify-center rounded-full bg-muted/70 text-muted-foreground">
+      <div className="flex size-8 items-center justify-center rounded-full bg-destructive/10 text-destructive ring-1 ring-destructive/20">
         {renderErrorIcon(info.kind)}
       </div>
-      <div className="space-y-1">
-        <div className="text-sm font-semibold text-foreground">{info.title}</div>
-        <p className="max-w-md text-sm text-muted-foreground">{info.message}</p>
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-foreground">{info.title}</span>
+        <p className="max-w-md text-xs text-muted-foreground">{info.message}</p>
       </div>
       {info.retryable && onRetry ? (
-        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="mt-1">
+        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="mt-1 gap-1.5">
           <RotateCw className="size-3.5" />
           Try again
         </Button>
@@ -171,23 +167,23 @@ function QueryStateEmpty({
   return (
     <div
       className={cn(
-        "flex flex-col items-center gap-3 rounded-md border border-dashed bg-card/40 px-6 py-10 text-center",
+        "flex flex-col items-center justify-center gap-3 py-10 text-center",
         className,
       )}
     >
-      <div className="flex size-11 items-center justify-center rounded-full bg-muted/60 text-muted-foreground">
-        {icon ?? <Inbox className="size-5" aria-hidden />}
+      <div className="flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground ring-1 ring-border">
+        {icon ?? <Inbox className="size-4" aria-hidden />}
       </div>
-      <div className="space-y-1">
-        <div className="text-sm font-semibold text-foreground">{title}</div>
-        <p className="max-w-md text-sm text-muted-foreground">{description}</p>
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-foreground">{title}</span>
+        <p className="max-w-md text-xs text-muted-foreground">{description}</p>
       </div>
     </div>
   );
 }
 
 function renderErrorIcon(kind: SemaphorErrorKind) {
-  const className = "size-5";
+  const className = "size-4";
   switch (kind) {
     case "network":
       return <WifiOff className={className} aria-hidden />;

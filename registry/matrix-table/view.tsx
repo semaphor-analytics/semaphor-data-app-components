@@ -241,7 +241,7 @@ export function MatrixTableView({
                           row.role !== "value" && "bg-muted font-medium",
                           row.role === "rowGrandTotal" && "bg-muted font-semibold",
                           stickyFirstColumn &&
-                            "shadow-[1px_0_0_hsl(var(--border))]",
+                            "shadow-[1px_0_0_var(--border)]",
                         )}
                       >
                         <div
@@ -319,7 +319,7 @@ function renderAxisControlRow({
       role="columnheader"
       className={cn(
           "sticky left-0 top-0 z-50 flex h-10 items-center overflow-hidden border-b border-r bg-muted px-3 text-xs font-medium text-muted-foreground",
-          stickyFirstColumn && "shadow-[1px_0_0_hsl(var(--border))]",
+          stickyFirstColumn && "shadow-[1px_0_0_var(--border)]",
         )}
       >
         <div className="flex min-w-0 items-center gap-2">
@@ -387,7 +387,7 @@ function renderHeaderRows({
         role="columnheader"
         className={cn(
           "sticky left-0 z-50 flex h-10 items-center overflow-hidden border-b border-r bg-muted px-3 text-xs font-medium text-muted-foreground",
-          stickyFirstColumn && "shadow-[1px_0_0_hsl(var(--border))]",
+          stickyFirstColumn && "shadow-[1px_0_0_var(--border)]",
         )}
         style={{ top: (rowIndex + topOffsetRows) * MATRIX_HEADER_ROW_HEIGHT }}
       >
@@ -549,7 +549,7 @@ function MatrixValueCell({
     <div
       role="cell"
       className={cn(
-        "relative z-0 flex min-h-11 items-center justify-end overflow-hidden border-r px-3 py-2 text-right font-mono text-sm tabular-nums",
+        "relative z-0 flex min-h-11 items-center justify-end overflow-hidden border-r px-3 py-2 text-right text-sm tabular-nums",
         cell?.role !== "value" && "bg-muted/20 font-semibold",
         cell?.presence !== "present" && "text-muted-foreground",
       )}

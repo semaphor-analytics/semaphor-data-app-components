@@ -53,21 +53,25 @@ export function SingleSelectFilter({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-sm">
         <PopoverTrigger
           render={
             <button
               type="button"
               className={cn(
-                "inline-flex h-full items-center gap-2 rounded-l-md pr-2 pl-2.5 transition-colors hover:bg-secondary",
+                "flex h-full items-center gap-2 rounded-l-md pr-2 pl-3 text-left transition-colors hover:bg-secondary",
                 !(allowClear && value) && "rounded-r-md",
               )}
             />
           }
         >
-          <span className="text-muted-foreground">{label}</span>
-          <span className="font-medium text-foreground">{triggerValue}</span>
-          <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="shrink-0 text-muted-foreground">{label}</span>
+            <span className="truncate font-medium text-foreground">
+              {triggerValue}
+            </span>
+          </span>
+          <ChevronDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
         </PopoverTrigger>
         {allowClear && value ? (
           <>
@@ -84,7 +88,7 @@ export function SingleSelectFilter({
         ) : null}
       </div>
 
-      <PopoverContent align={align} className="w-56 gap-0 p-0">
+      <PopoverContent align={align} className="w-72 gap-0 p-0">
         <Command>
           {!hideSearch ? (
             <CommandInput

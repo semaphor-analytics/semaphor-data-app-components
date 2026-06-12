@@ -250,7 +250,14 @@ export function ComponentGallery() {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-6xl px-5 py-8 lg:px-10 lg:py-10">
+          <div
+            className={cn(
+              "w-full px-5 py-6 lg:py-8",
+              activeDashboard
+                ? "lg:px-8"
+                : "mx-auto max-w-6xl lg:px-10",
+            )}
+          >
             {activeDashboard ? (
               <DashboardCanvas sample={activeDashboard} />
             ) : activeComponent ? (
@@ -541,7 +548,7 @@ function DashboardCanvas({
       {sample.bleed ? (
         sample.render()
       ) : (
-        <div className="rounded-lg border border-border bg-muted/40 p-4 lg:p-6 dark:bg-muted/20">
+        <div className="rounded-lg border border-border bg-muted/40 p-4 lg:p-5 dark:bg-muted/20">
           {sample.render()}
         </div>
       )}

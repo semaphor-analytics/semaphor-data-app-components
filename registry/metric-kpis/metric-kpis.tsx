@@ -104,7 +104,7 @@ export function SemaphorMetricKpiCard({
   return (
     <Card className={cn("gap-3", className)}>
       <CardHeader className="pb-0">
-        <CardTitle className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+        <CardTitle className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
           {title}
         </CardTitle>
         {description ? (
@@ -230,7 +230,7 @@ export function SemaphorMultiMeasureKpis({
                   index === metricEntries.length - 1 && "sm:pr-0",
                 )}
               >
-                <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                <span className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
                   {metric.label}
                 </span>
                 <div className="flex items-baseline gap-2">

@@ -9,7 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { CardScopeBadge, type CardScopeFilter } from "../card-scope-badge"
+import {
+  SemaphorQueryStateBoundary,
+  type SemaphorQueryStateLike,
+} from "../../../registry/query-state-boundary"
 import {
   SemaphorActiveFilterSummaryBadge,
   SemaphorDateRangeFilter,
@@ -74,7 +85,110 @@ const segmentSplit = [
   { label: "SMB", value: 316900 },
 ]
 
+type DashboardDemoState =
+  | "ready"
+  | "loading"
+  | "refreshing"
+  | "partial"
+  | "error"
+  | "empty"
+
+const DEMO_STATE_OPTIONS: { value: DashboardDemoState; label: string }[] = [
+  { value: "ready", label: "Ready" },
+  { value: "loading", label: "Loading" },
+  { value: "partial", label: "Partial" },
+  { value: "error", label: "Error" },
+  { value: "empty", label: "Empty" },
+]
+
+const DEMO_ERROR = {
+  name: "QueryError",
+  message: "The query could not be executed.",
+}
+
+/** Wrap a ready payload in the query-state shape for the selected demo state. */
+function withDemoState(
+  demoState: DashboardDemoState,
+  payload: SemaphorQueryStateLike,
+): SemaphorQueryStateLike {
+  switch (demoState) {
+    case "loading":
+      return { status: "loading", isLoading: true }
+    case "refreshing":
+      return { ...payload, status: "loading", isLoading: true, isStale: true }
+    case "partial":
+      return { ...payload, status: "success", rowLimitExceeded: true }
+    case "error":
+      return { status: "error", error: DEMO_ERROR }
+    case "empty":
+      return { status: "success", records: [] }
+    case "ready":
+    default:
+      return { ...payload, status: "success" }
+  }
+}
+
+function metricResultFor(demoState: DashboardDemoState) {
+  const measures = { revenue: 2002900, orders: 6842, conversion_rate: 18.6 }
+  const ready = {
+    value: 2002900,
+    deltaPercent: 12.4,
+    measures,
+    records: ordersRows.slice(0, 6),
+  }
+  switch (demoState) {
+    case "loading":
+      return { status: "success" as const, isLoading: true }
+    case "refreshing":
+      return {
+        ...ready,
+        status: "success" as const,
+        isLoading: true,
+        isStale: true,
+      }
+    case "partial":
+      return { ...ready, status: "success" as const, rowLimitExceeded: true }
+    case "error":
+      return { status: "success" as const, error: DEMO_ERROR }
+    case "empty":
+      return { status: "success" as const, value: null, measures: {}, records: [] }
+    case "ready":
+    default:
+      return { ...ready, status: "success" as const }
+  }
+}
+
+function StateSwitcher({
+  value,
+  onChange,
+}: {
+  value: DashboardDemoState
+  onChange: (next: DashboardDemoState) => void
+}) {
+  return (
+    <Select
+      value={value}
+      onValueChange={(next) => {
+        if (next) onChange(next as DashboardDemoState)
+      }}
+    >
+      <SelectTrigger className="h-8 gap-1.5 border-border bg-card">
+        <span className="text-muted-foreground">State</span>
+        <SelectValue className="font-medium capitalize" />
+      </SelectTrigger>
+      <SelectContent>
+        {DEMO_STATE_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 export function ExecutiveScorecardSample() {
+  const [demoState, setDemoState] = useState<DashboardDemoState>("ready")
   const [region, setRegion] = useState<DemoOptionValue | undefined>("north")
   const [segments, setSegments] = useState<DemoOptionValue[]>([
     "enterprise",
@@ -119,24 +233,16 @@ export function ExecutiveScorecardSample() {
   const scopedBy = (ids: string[]): CardScopeFilter[] =>
     summaries.filter((summary) => ids.includes(summary.id))
 
-  const metricResult = {
-    status: "success" as const,
-    value: 2002900,
-    deltaPercent: 12.4,
-    measures: {
-      revenue: 2002900,
-      orders: 6842,
-      conversion_rate: 18.6,
-    },
-    records: ordersRows.slice(0, 6),
-  }
+  const metricResult = metricResultFor(demoState)
+  const tableRows = demoState === "empty" ? [] : ordersRows.slice(0, 8)
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <SemaphorActiveFilterSummaryBadge
-          filters={summaries}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <SemaphorActiveFilterSummaryBadge filters={summaries} />
+          <StateSwitcher value={demoState} onChange={setDemoState} />
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <SemaphorDateRangeFilter handle={handles[0]} />
           <SemaphorSingleSelectFilter
@@ -186,6 +292,7 @@ export function ExecutiveScorecardSample() {
           title="Revenue trend"
           description="Use line or area charts when the reading task is direction over time."
           scope={scopedBy(["order_date", "region"])}
+          state={withDemoState(demoState, { records: trendData })}
           className="lg:col-span-3"
         >
           <MiniAreaChart data={trendData} />
@@ -194,6 +301,7 @@ export function ExecutiveScorecardSample() {
           title="Revenue by segment"
           description="Donut charts work for part-to-whole splits with few slices."
           scope={scopedBy(["order_date", "region"])}
+          state={withDemoState(demoState, { records: segmentSplit })}
           compactScope
           className="lg:col-span-2"
         >
@@ -206,6 +314,7 @@ export function ExecutiveScorecardSample() {
           title="Revenue by campaign"
           description="Column charts compare a handful of named categories."
           scope={scopedBy(["order_date", "region", "segment"])}
+          state={withDemoState(demoState, { records: campaignRevenue })}
           className="lg:col-span-3"
         >
           <MiniBarChart data={campaignRevenue} />
@@ -214,6 +323,7 @@ export function ExecutiveScorecardSample() {
           title="Revenue by region"
           description="Ranked categories should be bounded and sorted."
           scope={scopedBy(["order_date", "segment"])}
+          state={withDemoState(demoState, { records: regionRevenue })}
           compactScope
           className="lg:col-span-2"
         >
@@ -225,8 +335,12 @@ export function ExecutiveScorecardSample() {
         title="Recent campaign orders"
         description="A bounded records preview can sit below the KPI and chart summary."
         columns={ordersColumns}
-        rows={ordersRows.slice(0, 8)}
-        totalRow={getDisplayedTotals(ordersRows.slice(0, 8))}
+        rows={tableRows}
+        totalRow={
+          tableRows.length ? getDisplayedTotals(tableRows) : undefined
+        }
+        loading={demoState === "loading" || demoState === "refreshing"}
+        error={demoState === "error" ? DEMO_ERROR : undefined}
         height={320}
         enableColumnVisibility={false}
         enableDensityToggle={false}
@@ -277,6 +391,7 @@ function ChartCard({
   description,
   scope,
   compactScope = false,
+  state,
   className,
   children,
 }: {
@@ -284,6 +399,7 @@ function ChartCard({
   description?: string
   scope?: CardScopeFilter[]
   compactScope?: boolean
+  state?: SemaphorQueryStateLike
   className?: string
   children: React.ReactNode
 }) {
@@ -298,7 +414,15 @@ function ChartCard({
           </CardAction>
         ) : null}
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent>
+        {state ? (
+          <SemaphorQueryStateBoundary state={state}>
+            {children}
+          </SemaphorQueryStateBoundary>
+        ) : (
+          children
+        )}
+      </CardContent>
     </Card>
   )
 }
@@ -419,7 +543,7 @@ function MiniAreaChart({
           })}
         </svg>
       </div>
-      <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
+      <div className="flex justify-between text-[11px] text-muted-foreground tabular-nums">
         {data.map((point) => (
           <span key={point.label}>{point.label}</span>
         ))}
@@ -490,7 +614,7 @@ function MiniBarChart({
                 x={x + barWidth / 2}
                 y={y - 7}
                 textAnchor="middle"
-                fontSize={10}
+                fontSize={11}
                 fill="var(--muted-foreground)"
               >
                 {formatCurrencyCompact(row.value)}
@@ -576,7 +700,7 @@ function MiniDonutChart({
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-semibold tabular-nums">
+          <span className="text-base font-semibold tabular-nums">
             {formatCurrencyCompact(total)}
           </span>
           <span className="text-[11px] text-muted-foreground">Total</span>

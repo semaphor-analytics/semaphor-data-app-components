@@ -2,12 +2,10 @@ import type { ReactNode } from "react"
 import {
   AlertCircleIcon,
   InboxIcon,
-  Loader2Icon,
   RefreshCwIcon,
   TriangleAlertIcon,
 } from "lucide-react"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -69,60 +67,34 @@ export function SemaphorQueryStateBoundary({
   empty,
   error,
   partialMessage = "This view returned a partial result.",
-  staleLabel = "Refreshing",
   onRetry,
 }: SemaphorQueryStateBoundaryProps) {
   const isLoading = state.isLoading || state.status === "loading"
   const isError = Boolean(state.error) || state.status === "error"
   const isEmpty = resolveQueryIsEmpty(state)
   const isPartial = resolveQueryIsPartial(state)
-  const canShowStaleData = Boolean(
-    (state.isStale || isLoading) && hasRenderablePayload(state) && !isEmpty
-  )
-
-  if (isLoading && !canShowStaleData) {
+  if (isLoading) {
     return loading ?? <DefaultLoadingState />
   }
 
-  if (isError && state.error && !canShowStaleData) {
+  if (isError && state.error) {
     if (typeof error === "function") return error(state.error)
     return error ?? <DefaultErrorState error={state.error} onRetry={onRetry} />
   }
 
-  if (isEmpty && !canShowStaleData) {
+  if (isEmpty) {
     return empty ?? <DefaultEmptyState />
   }
 
   return (
     <div className="flex flex-col gap-3">
-      {(isPartial || canShowStaleData || isError) && (
-        <div className="flex flex-wrap items-center gap-2">
-          {isPartial ? (
-            <Badge variant="outline" className="gap-1">
-              <TriangleAlertIcon className="size-3" />
-              Partial
-            </Badge>
-          ) : null}
-          {canShowStaleData ? (
-            <Badge variant="secondary" className="gap-1">
-              <Loader2Icon className="size-3 animate-spin" />
-              {staleLabel}
-            </Badge>
-          ) : null}
-          {isError && state.error ? (
-            <Badge variant="destructive" className="gap-1">
-              <AlertCircleIcon className="size-3" />
-              Last refresh failed
-            </Badge>
-          ) : null}
-        </div>
-      )}
       {isPartial ? (
-        <Alert>
-          <TriangleAlertIcon />
-          <AlertTitle>Partial result</AlertTitle>
-          <AlertDescription>{partialMessage}</AlertDescription>
-        </Alert>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="gap-1" title={partialMessage}>
+            <TriangleAlertIcon className="size-3" />
+            Partial
+          </Badge>
+        </div>
       ) : null}
       {children}
     </div>
@@ -143,10 +115,6 @@ function resolveQueryIsPartial(state: SemaphorQueryStateLike) {
     state.executionResult?.diagnosticFeedback?.status === "partial" ||
     state.executionResult?.coverage?.missingObligations?.length
   )
-}
-
-function hasRenderablePayload(state: SemaphorQueryStateLike) {
-  return derivePayloadIsEmpty(state) === false && hasKnownPayloadShape(state)
 }
 
 function derivePayloadIsEmpty(state: SemaphorQueryStateLike) {
@@ -194,33 +162,6 @@ function derivePayloadIsEmpty(state: SemaphorQueryStateLike) {
   }
 
   return false
-}
-
-function hasKnownPayloadShape(state: SemaphorQueryStateLike) {
-  return [
-    "options",
-    "matrixResult",
-    "grid",
-    "answerSummary",
-    "resultSets",
-    "primary",
-    "comparisons",
-    "contributors",
-    "segments",
-    "periodChanges",
-    "changes",
-    "drivers",
-    "absoluteDeltaDrivers",
-    "largestNegativeChanges",
-    "largestPositiveChanges",
-    "largestNegativeDrivers",
-    "largestPositiveDrivers",
-    "value",
-    "measures",
-    "metrics",
-    "records",
-    "output",
-  ].some((key) => Object.prototype.hasOwnProperty.call(state, key))
 }
 
 function hasAnalysisPayload(state: SemaphorQueryStateLike) {
@@ -281,9 +222,21 @@ function hasGridCells(
 
 function DefaultLoadingState() {
   return (
-    <div className="flex flex-col gap-3">
-      <Skeleton className="h-8 w-36" />
-      <Skeleton className="h-4 w-56" />
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label="Loading"
+      className="flex flex-col gap-4"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <Skeleton className="h-7 w-28 rounded-md" />
+        <Skeleton className="h-5 w-14 rounded-sm" />
+      </div>
+      <div className="flex flex-col gap-2.5">
+        <Skeleton className="h-3.5 w-full rounded-sm" />
+        <Skeleton className="h-3.5 w-[82%] rounded-sm" />
+        <Skeleton className="h-3.5 w-[55%] rounded-sm" />
+      </div>
     </div>
   )
 }
@@ -312,24 +265,30 @@ function DefaultErrorState({
   onRetry?: () => void
 }) {
   return (
-    <Alert variant="destructive">
-      <AlertCircleIcon />
-      <AlertTitle>This view could not load</AlertTitle>
-      <AlertDescription>
-        {error.message ?? "The query failed."}
-      </AlertDescription>
+    <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+      <div className="flex size-8 items-center justify-center rounded-full bg-destructive/10 text-destructive ring-1 ring-destructive/20">
+        <AlertCircleIcon className="size-4" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-foreground">
+          Couldn’t load this view
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {error.message ?? "The query failed."}
+        </span>
+      </div>
       {onRetry ? (
         <Button
           type="button"
           size="sm"
           variant="outline"
-          className="mt-3 w-fit gap-1.5"
+          className="mt-1 gap-1.5"
           onClick={onRetry}
         >
           <RefreshCwIcon className="size-3.5" />
           Retry
         </Button>
       ) : null}
-    </Alert>
+    </div>
   )
 }

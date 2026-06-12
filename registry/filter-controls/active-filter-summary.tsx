@@ -36,7 +36,7 @@ export function getSemaphorActiveFilterSummaries(
 }
 
 export function SemaphorActiveFilterSummaryBadge({
-  filters,
+  filters = [],
   className,
 }: SemaphorActiveFilterSummaryBadgeProps) {
   if (!filters.length) {

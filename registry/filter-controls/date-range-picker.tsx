@@ -133,7 +133,7 @@ export function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-sm">
         <PopoverTrigger
           render={
             <button
@@ -176,10 +176,10 @@ export function DateRangePicker({
                     type="button"
                     onClick={() => selectPreset(preset)}
                     className={cn(
-                      "w-full rounded-md px-2.5 py-1.5 text-left text-xs transition-colors",
+                      "flex w-full min-h-7 items-center rounded-md px-2 py-1 text-left text-sm transition-colors",
                       isActive
-                        ? "bg-secondary text-foreground"
-                        : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
                     {preset.label}

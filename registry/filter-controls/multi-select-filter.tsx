@@ -55,21 +55,25 @@ export function MultiSelectFilter({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-xs">
+      <div className="inline-flex h-8 items-center overflow-hidden rounded-md border bg-card text-sm">
         <PopoverTrigger
           render={
             <button
               type="button"
               className={cn(
-                "inline-flex h-full items-center gap-2 rounded-l-md pr-2 pl-2.5 transition-colors hover:bg-secondary",
+                "flex h-full items-center gap-2 rounded-l-md pr-2 pl-3 text-left transition-colors hover:bg-secondary",
                 value.length === 0 && "rounded-r-md",
               )}
             />
           }
         >
-          <span className="text-muted-foreground">{label}</span>
-          <span className="font-medium text-foreground">{triggerValue}</span>
-          <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="shrink-0 text-muted-foreground">{label}</span>
+            <span className="truncate font-medium text-foreground">
+              {triggerValue}
+            </span>
+          </span>
+          <ChevronDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
         </PopoverTrigger>
         {value.length > 0 ? (
           <>
@@ -88,7 +92,7 @@ export function MultiSelectFilter({
 
       <PopoverContent
         align={align}
-        className="w-64 gap-0 p-0"
+        className="w-72 gap-0 p-0"
       >
         <Command>
           <CommandInput placeholder={searchPlaceholder ?? `Search ${label.toLowerCase()}...`} />
@@ -109,7 +113,7 @@ export function MultiSelectFilter({
                         "flex size-3.5 shrink-0 items-center justify-center rounded-sm border",
                         selected
                           ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card",
+                          : "border-border bg-background",
                       )}
                     >
                       {selected ? <CheckIcon className="size-2.5" /> : null}
@@ -122,31 +126,33 @@ export function MultiSelectFilter({
           </CommandList>
         </Command>
         <div className="flex items-center justify-between gap-2 border-t px-1.5 py-1 text-[11px] text-muted-foreground">
-          <div className="flex min-w-0 items-center gap-1">
-            {value.length > 0 ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 px-2 text-xs"
-                onClick={() => onChange([])}
-              >
-                Clear
-              </Button>
-            ) : null}
-            <span className="truncate px-1 tabular-nums">
-              {value.length === 0
-                ? `${options.length} options`
-                : `${value.length} of ${options.length} selected`}
-            </span>
+          <span className="truncate px-1 tabular-nums">
+            {value.length === 0
+              ? `${options.length} options`
+              : `${value.length} of ${options.length} selected`}
+          </span>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              tabIndex={value.length === 0 ? -1 : undefined}
+              className={cn(
+                "h-6 px-2 text-xs",
+                value.length === 0 && "invisible",
+              )}
+              onClick={() => onChange([])}
+            >
+              Clear
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs"
+              onClick={() => setOpen(false)}
+            >
+              Done
+            </Button>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-6 shrink-0 px-2 text-xs"
-            onClick={() => setOpen(false)}
-          >
-            Done
-          </Button>
         </div>
       </PopoverContent>
     </Popover>

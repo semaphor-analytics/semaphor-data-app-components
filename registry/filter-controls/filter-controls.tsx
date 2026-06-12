@@ -40,7 +40,9 @@ export function SemaphorMultiSelectFilter({
   options,
   ...filterProps
 }: SemaphorMultiSelectFilterProps) {
-  const adapter = createSemaphorOptionAdapter(options ?? handle.options)
+  const adapter = createSemaphorOptionAdapter(options ?? handle.options, {
+    labelContext: [label, handle.label, handle.id].filter(Boolean).join(" "),
+  })
   const selectedValues = toOptionValueArray(handle.value)
 
   return (
@@ -65,7 +67,9 @@ export function SemaphorSingleSelectFilter({
   options,
   ...filterProps
 }: SemaphorSingleSelectFilterProps) {
-  const adapter = createSemaphorOptionAdapter(options ?? handle.options)
+  const adapter = createSemaphorOptionAdapter(options ?? handle.options, {
+    labelContext: [label, handle.label, handle.id].filter(Boolean).join(" "),
+  })
   const selectedValue = toSingleOptionValue(handle.value)
 
   return (

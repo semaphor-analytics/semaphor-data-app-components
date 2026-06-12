@@ -222,8 +222,8 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
   const showInlineChrome = !isInitialLoad && !(error && rows.length === 0);
 
   const headerRowHeight = density === "compact" ? "h-8" : "h-10";
-  const bodyCellPadding = density === "compact" ? "py-1 px-2" : "py-2 px-2";
-  const footerCellPadding = density === "compact" ? "py-1.5 px-2" : "py-2 px-2";
+  const bodyCellPadding = density === "compact" ? "py-1 px-3" : "py-2 px-3";
+  const footerCellPadding = density === "compact" ? "py-1.5 px-3" : "py-2 px-3";
 
   return (
     <section className="overflow-hidden rounded-lg border bg-card text-card-foreground">
@@ -370,7 +370,7 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
                             }}
                             className={cn(
                               headerRowHeight,
-                              "sticky top-0 z-20 border-b bg-muted/60 px-2 text-foreground backdrop-blur supports-backdrop-filter:bg-muted/60",
+                              "sticky top-0 z-20 border-b bg-muted/60 px-3 text-foreground backdrop-blur supports-backdrop-filter:bg-muted/60",
                               isStickyCol &&
                                 "left-0 z-30 after:absolute after:inset-y-0 after:-right-px after:w-px after:bg-border",
                             )}
