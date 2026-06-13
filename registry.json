@@ -4,26 +4,10 @@
   "homepage": "https://github.com/semaphor-analytics/semaphor-data-app-components",
   "items": [
     {
-      "name": "data-app-kit",
-      "type": "registry:block",
-      "title": "Semaphor Data App Kit",
-      "description": "One-command install for the Semaphor Data App guidance and reusable dashboard components.",
-      "registryDependencies": [
-        "semaphor-analytics/semaphor-data-app-components/data-app-guidelines",
-        "semaphor-analytics/semaphor-data-app-components/query-state",
-        "semaphor-analytics/semaphor-data-app-components/query-state-boundary",
-        "semaphor-analytics/semaphor-data-app-components/view-card",
-        "semaphor-analytics/semaphor-data-app-components/metric-kpis",
-        "semaphor-analytics/semaphor-data-app-components/filter-controls",
-        "semaphor-analytics/semaphor-data-app-components/server-data-table",
-        "semaphor-analytics/semaphor-data-app-components/matrix-table"
-      ]
-    },
-    {
       "name": "data-app-guidelines",
       "type": "registry:item",
       "title": "Semaphor Data App Guidelines",
-      "description": "Scoped implementation guidance for building Semaphor Data Apps with the SDK and optional registry components.",
+      "description": "Scoped implementation guidance for building Semaphor Data Apps with the SDK and Semaphor component semantics.",
       "files": [
         {
           "path": "registry/data-app-guidelines/semaphor-data-app-guidelines.md",

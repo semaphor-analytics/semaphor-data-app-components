@@ -6,10 +6,12 @@ Public gallery:
 https://semaphor-analytics.github.io/semaphor-data-app-components/
 
 This repo packages complex Data App UI mechanics as inspectable source files
-that can be installed into customer React apps with the shadcn CLI. The
-components consume public Semaphor Data App SDK result shapes. They do not own
-analytics correctness, authentication, MCP setup, query planning, SQL, or
-private Semaphor routes.
+and a public gallery. The default `create-semaphor-app` starter already includes
+the Semaphor components and local samples; the registry items here are optional
+reference/adoption paths for teams that want to copy individual pieces into an
+existing shadcn app. The components consume public Semaphor Data App SDK result
+shapes. They do not own analytics correctness, authentication, MCP setup, query
+planning, SQL, or private Semaphor routes.
 
 Each complex table item separates mechanics from presentation:
 
@@ -19,13 +21,12 @@ Each complex table item separates mechanics from presentation:
 - `index.tsx` is the thin Semaphor SDK wrapper around `useSemaphorQuery`.
 - `view.tsx` is the shadcn/base UI presentation shell.
 
-Customers can install the full component when the host app uses compatible
+Customers can install individual components when the host app uses compatible
 shadcn/base UI primitives, or use the core files as reference implementations
 when adapting the table mechanics into another table/grid/design system.
 
 ## Components
 
-- `data-app-kit`: one-command install for the full guidance and component set.
 - `query-state`: reusable loading, error, empty, and success states.
 - `query-state-boundary`: SDK-shaped boundary for raw `useSemaphorQuery`
   results, including loading, error, empty, stale, and partial states.
@@ -41,13 +42,10 @@ when adapting the table mechanics into another table/grid/design system.
 
 ## Install
 
-From a React app that already uses shadcn and `react-semaphor`:
-
-```bash
-npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/data-app-kit
-```
-
-Install individual components only when you need a smaller subset:
+For new Semaphor Data Apps, use `create-semaphor-app`; it includes these
+components directly in the generated starter. For an existing React app that
+already uses shadcn and `react-semaphor`, install individual components as
+needed:
 
 ```bash
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/query-state-boundary

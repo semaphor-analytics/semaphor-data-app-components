@@ -1,7 +1,7 @@
 # Semaphor Data App Guidelines
 
 Use these rules when building a Semaphor Data App with Semaphor's Data App SDK
-and optional registry components. They are scoped to Semaphor Data App
+and Semaphor component semantics. They are scoped to Semaphor Data App
 implementation and should not replace the host app's root agent or
 design-system instructions.
 
@@ -14,12 +14,13 @@ design-system instructions.
 - Use generated `queryOptionsForView.*(inputHandles)` or equivalent generated
   bindings so filters are applied from the contract, not inferred from labels.
 
-## Default Registry Components Or Equivalent Semantics
+## Default Semaphor Components Or Equivalent Semantics
 
-Semaphor registry components are the default starter and eval implementation,
-not a required customer design system. Customer apps may replace any visual
-component with their own shadcn or product components when they preserve the
-same Semaphor semantics.
+The default starter includes Semaphor components for query state, view shells,
+filters, KPIs, tables, and matrix views. They are the default starter and eval
+implementation, not a required customer design system. Customer apps may
+replace any visual component with their own shadcn or product components when
+they preserve the same Semaphor semantics.
 
 - Use `SemaphorViewCard` by default for generated starter/eval views, or provide
   an equivalent shell that exposes `data-semaphor-view-card` and renders query
