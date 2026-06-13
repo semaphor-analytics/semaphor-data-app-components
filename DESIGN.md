@@ -11,11 +11,13 @@
 
 ## How consistency is enforced — three tiers
 
-1. **Primitives carry the defaults.** Everything in `src/components/ui/*`
+1. **Primitives are the host substrate.** Everything in `src/components/ui/*`
    (Button, Card, Input, Select, Command, Calendar, Badge, Tabs, Tooltip, …)
-   is pre-tuned to the tokens below. **Use a primitive instead of hand-rolling a
-   control** and you inherit the correct size, radius, font, and color for free.
-   This is the strongest guardrail — most UI is built from these.
+   is the local gallery's shadcn layer. Public registry components compose those
+   primitives, but Semaphor-specific dashboard opinions belong under
+   `components/semaphor/*`. Customer apps may bring their own shadcn preset and
+   primitive styling; do not require primitive overwrites to get correct
+   Semaphor behavior.
 2. **Design tokens live in `src/index.css`.** Color, the radius ramp (capped at
    6px), and the font family. Never hardcode a hex color, radius, or shadow —
    reach for the CSS variable / Tailwind token.
@@ -61,8 +63,9 @@ Rules:
 - **Radius (brand cap = 6px):** `rounded-lg` (6) for cards/popovers/dialogs,
   `rounded-md` (5) for controls, `rounded-sm` (4) for chips/badges. **Never**
   `rounded-xl` or larger. `rounded-full` only for avatars / status dots.
-- Reuse the shared primitive — don't rebuild a Select, Popover, Command, or
-  Calendar. They're already dense-tuned.
+- Reuse the host primitive — don't rebuild a Select, Popover, Command, or
+  Calendar. Put Semaphor-specific density and affordances in the Semaphor
+  wrapper/component that composes the primitive.
 
 ## Color
 
@@ -127,7 +130,9 @@ Semaphor shell.
 Because the rules live in the primitives + `index.css` + this doc, a global
 change is a **one-place** edit, not a sweep:
 
-- Control font/height → the relevant `src/components/ui/*` variant.
+- Control font/height → first prefer the Semaphor wrapper/component that owns
+  the dashboard use case. Change `src/components/ui/*` only for this gallery's
+  local primitive behavior, not as a customer distribution mechanism.
 - Radius / color / font family → `src/index.css`.
 - A scale or rule → this doc (and the primitive that embodies it).
 

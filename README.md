@@ -25,6 +25,7 @@ when adapting the table mechanics into another table/grid/design system.
 
 ## Components
 
+- `data-app-kit`: one-command install for the full guidance and component set.
 - `query-state`: reusable loading, error, empty, and success states.
 - `query-state-boundary`: SDK-shaped boundary for raw `useSemaphorQuery`
   results, including loading, error, empty, stale, and partial states.
@@ -43,6 +44,12 @@ when adapting the table mechanics into another table/grid/design system.
 From a React app that already uses shadcn and `react-semaphor`:
 
 ```bash
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/data-app-kit
+```
+
+Install individual components only when you need a smaller subset:
+
+```bash
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/query-state-boundary
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/view-card
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/metric-kpis
@@ -59,6 +66,14 @@ shadcn calendar/command/popover primitives. The `server-data-table` item
 installs `@tanstack/react-table` and the `query-state` item. The `matrix-table`
 item installs `query-state` and consumes the public Data App SDK matrix
 result/grid shape.
+
+The registry components are Semaphor-specific composition layers. They depend
+on shadcn primitives such as `button`, `card`, `badge`, and `popover`, but they
+should not require customers to replace their base primitives. If a host app
+already has those files, review conflicts deliberately instead of using
+`--overwrite` by default. Customer shadcn presets own primitive styling;
+Semaphor dashboard behavior and affordances belong under
+`components/semaphor/*`.
 
 ## Local Development
 

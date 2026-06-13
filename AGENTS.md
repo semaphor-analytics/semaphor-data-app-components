@@ -6,8 +6,11 @@ sizes, filters, cards, or state handling ad hoc.**
 1. **Before any UI change, read
    `registry/data-app-guidelines/semaphor-data-app-guidelines.md`** and
    `CLAUDE.md` when present.
-2. **Build from the shared primitives** in `src/components/ui/*` — they're
-   pre-tuned to the tokens. Don't rebuild a Button / Select / Popover / Calendar.
+2. **Build from shadcn primitives by composition.** The local
+   `src/components/ui/*` files are for this gallery app. Public registry items
+   should layer Semaphor behavior and dashboard styling under
+   `components/semaphor/*` and depend on host shadcn primitives instead of
+   overwriting a customer's Button / Select / Popover / Calendar.
 
 The rules you must not break:
 
@@ -29,7 +32,9 @@ The rules you must not break:
   contract, not label or row inference.
 
 Tokens live in `src/index.css`; never hardcode hex / radii / shadows. If you'd
-fix the same thing on a second component, fix it in the primitive or scoped
-guidelines.
+fix the same thing on a second Semaphor component, prefer a Semaphor wrapper,
+variant, or scoped guideline. Only change a base primitive when the gallery's
+local primitive itself is wrong; do not rely on primitive edits as the
+distribution mechanism for customer apps.
 
 Verify with `npm run typecheck && npm run build` after UI changes.
