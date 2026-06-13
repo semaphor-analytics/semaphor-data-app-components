@@ -28,6 +28,8 @@ when adapting the table mechanics into another table/grid/design system.
 - `query-state`: reusable loading, error, empty, and success states.
 - `query-state-boundary`: SDK-shaped boundary for raw `useSemaphorQuery`
   results, including loading, error, empty, stale, and partial states.
+- `view-card`: SDK-backed card shell with title, description, query state, and
+  per-card filter-scope affordances.
 - `metric-kpis`: KPI cards and multi-measure KPI helpers for Semaphor metric
   query results.
 - `filter-controls`: date range, active filter summary, single-select, and
@@ -42,17 +44,21 @@ From a React app that already uses shadcn and `react-semaphor`:
 
 ```bash
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/query-state-boundary
+npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/view-card
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/metric-kpis
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/filter-controls
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/server-data-table
 npx shadcn@latest add semaphor-analytics/semaphor-data-app-components/matrix-table
 ```
 
-The `metric-kpis` item installs `query-state-boundary`. The
-`filter-controls` item installs `date-fns` and shadcn calendar/command/popover
-primitives. The `server-data-table` item installs `@tanstack/react-table` and
-the `query-state` item. The `matrix-table` item installs `query-state` and
-consumes the public Data App SDK matrix result/grid shape.
+The `view-card` item installs `query-state-boundary` and should wrap generated
+KPI, chart, analysis, table, and matrix views so every card has consistent query
+states and filter-scope cues. The `metric-kpis` item installs
+`query-state-boundary`. The `filter-controls` item installs `date-fns` and
+shadcn calendar/command/popover primitives. The `server-data-table` item
+installs `@tanstack/react-table` and the `query-state` item. The `matrix-table`
+item installs `query-state` and consumes the public Data App SDK matrix
+result/grid shape.
 
 ## Local Development
 
@@ -104,6 +110,7 @@ Use these components for UI mechanics:
 - server pagination controls;
 - server sorting controls;
 - loading, error, and empty states;
+- per-view filter scope affordances;
 - numeric alignment and displayed totals.
 - matrix/pivot grid rendering for governed matrix query results.
 - matrix payload projection, hierarchy collapse state, sparse cell handling,

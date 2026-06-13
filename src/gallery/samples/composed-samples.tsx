@@ -2,25 +2,18 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { SemaphorInputHandle } from "react-semaphor/data-app-sdk"
 
 import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CardScopeBadge, type CardScopeFilter } from "../card-scope-badge"
+import type { SemaphorQueryStateLike } from "../../../registry/query-state-boundary"
 import {
-  SemaphorQueryStateBoundary,
-  type SemaphorQueryStateLike,
-} from "../../../registry/query-state-boundary"
+  SemaphorViewCard,
+  SemaphorViewFilterBadge,
+  type SemaphorViewFilterSummary,
+} from "../../../registry/view-card"
 import {
   SemaphorActiveFilterSummaryBadge,
   SemaphorDateRangeFilter,
@@ -230,7 +223,7 @@ export function ExecutiveScorecardSample() {
   )
 
   const summaries = getSemaphorActiveFilterSummaries(handles)
-  const scopedBy = (ids: string[]): CardScopeFilter[] =>
+  const scopedBy = (ids: string[]): SemaphorViewFilterSummary[] =>
     summaries.filter((summary) => ids.includes(summary.id))
 
   const metricResult = metricResultFor(demoState)
@@ -262,13 +255,13 @@ export function ExecutiveScorecardSample() {
           format="currency-compact"
           comparisonLabel="vs previous period"
           trend={revenueTrendSpark}
-          headerAccessory={<CardScopeBadge compact filters={summaries} />}
+          headerAccessory={<SemaphorViewFilterBadge compact filters={summaries} />}
         />
         <SemaphorMultiMeasureKpis
           result={metricResult}
           title="Sales summary"
           description="Related measures from one governed metric result."
-          headerAccessory={<CardScopeBadge compact filters={summaries} />}
+          headerAccessory={<SemaphorViewFilterBadge compact filters={summaries} />}
           measures={[
             {
               key: "revenue",
@@ -397,33 +390,23 @@ function ChartCard({
 }: {
   title: string
   description?: string
-  scope?: CardScopeFilter[]
+  scope?: SemaphorViewFilterSummary[]
   compactScope?: boolean
   state?: SemaphorQueryStateLike
   className?: string
   children: React.ReactNode
 }) {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description ? <CardDescription>{description}</CardDescription> : null}
-        {scope && scope.length > 0 ? (
-          <CardAction>
-            <CardScopeBadge filters={scope} compact={compactScope} />
-          </CardAction>
-        ) : null}
-      </CardHeader>
-      <CardContent>
-        {state ? (
-          <SemaphorQueryStateBoundary state={state}>
-            {children}
-          </SemaphorQueryStateBoundary>
-        ) : (
-          children
-        )}
-      </CardContent>
-    </Card>
+    <SemaphorViewCard
+      title={title}
+      description={description}
+      filters={scope}
+      compactFilters={compactScope}
+      state={state}
+      className={className}
+    >
+      {children}
+    </SemaphorViewCard>
   )
 }
 
@@ -447,7 +430,7 @@ function useMeasuredWidth() {
   return [ref, width] as const
 }
 
-function MiniAreaChart({
+export function MiniAreaChart({
   data,
 }: {
   data: Array<{ label: string; revenue: number }>

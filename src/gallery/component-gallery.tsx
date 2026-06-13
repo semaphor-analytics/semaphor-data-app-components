@@ -65,6 +65,11 @@ import {
 } from "../../registry/filter-controls"
 import { SemaphorQueryStateBoundary } from "../../registry/query-state-boundary"
 import {
+  SemaphorViewCard,
+  SemaphorViewFilterBadge,
+  type SemaphorViewFilterSummary,
+} from "../../registry/view-card"
+import {
   ServerDataTableBasicExample,
   type ServerTableExampleControls,
 } from "./examples/server-data-table-basic"
@@ -72,14 +77,15 @@ import {
   MatrixTableBasicExample,
   type MatrixTableExampleControls,
 } from "./examples/matrix-table-basic"
-import { CardScopeBadge, type CardScopeFilter } from "./card-scope-badge"
 import {
   dashboardSamples,
   type DashboardSampleId,
 } from "./samples/dashboard-samples"
+import { MiniAreaChart } from "./samples/composed-samples"
 
 type RegistryItemId =
   | "query-state-boundary"
+  | "view-card"
   | "metric-kpis"
   | "filter-controls"
   | "server-data-table"
@@ -150,6 +156,17 @@ const registryItems: RegistryItem[] = [
     bestFor: "Pivot-style BI views with row and column dimensions.",
     installs: ["matrix-table"],
     dependencies: ["query-state", "button", "table"],
+  },
+  {
+    id: "view-card",
+    title: "View Card",
+    category: "State",
+    icon: LayersIcon,
+    summary:
+      "Card shell for SDK-backed views with title, query state, and per-card filter scope affordances.",
+    bestFor: "Generated KPI, chart, analysis, table, and matrix views.",
+    installs: ["view-card"],
+    dependencies: ["query-state-boundary", "badge", "card", "tooltip"],
   },
   {
     id: "query-state-boundary",
@@ -701,6 +718,8 @@ function renderPreview({
       return <MetricKpisPreview />
     case "filter-controls":
       return <FilterControlsPreview />
+    case "view-card":
+      return <ViewCardPreview />
     case "query-state":
       return <QueryStatePreview />
     case "query-state-boundary":
@@ -821,7 +840,7 @@ function MetricKpisPreview() {
     },
   }
 
-  const previewScope: CardScopeFilter[] = [
+  const previewScope: SemaphorViewFilterSummary[] = [
     { id: "order_date", label: "Order date", value: "Last 6 months" },
     { id: "region", label: "Region", value: "North" },
     { id: "segment", label: "Segment", value: "2 selected" },
@@ -835,13 +854,13 @@ function MetricKpisPreview() {
         description="Primary SDK metric value"
         format="currency-compact"
         trend={[612000, 668000, 705000, 742000, 798000, 842500]}
-        headerAccessory={<CardScopeBadge compact filters={previewScope} />}
+        headerAccessory={<SemaphorViewFilterBadge compact filters={previewScope} />}
       />
       <SemaphorMultiMeasureKpis
         result={metricResult}
         title="Performance summary"
         description="Secondary measures render from result.measures without reusing the primary comparison badge."
-        headerAccessory={<CardScopeBadge compact filters={previewScope} />}
+        headerAccessory={<SemaphorViewFilterBadge compact filters={previewScope} />}
         measures={[
           {
             key: "revenue",
@@ -858,6 +877,57 @@ function MetricKpisPreview() {
           },
         ]}
       />
+    </div>
+  )
+}
+
+function ViewCardPreview() {
+  const filters: SemaphorViewFilterSummary[] = [
+    { id: "order_date", label: "Order date", value: "Last 6 months" },
+    { id: "region", label: "Region", value: "North" },
+  ]
+  const trend = [
+    { label: "Jan", revenue: 248000 },
+    { label: "Feb", revenue: 276000 },
+    { label: "Mar", revenue: 302000 },
+    { label: "Apr", revenue: 335000 },
+    { label: "May", revenue: 381000 },
+    { label: "Jun", revenue: 418000 },
+  ]
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <SemaphorViewCard
+        title="Revenue trend"
+        description="A generated chart card with active filter scope in the header."
+        state={{ status: "success", records: [{ month: "Jun", revenue: 842500 }] }}
+        filters={filters}
+      >
+        <MiniAreaChart data={trend} />
+      </SemaphorViewCard>
+      <SemaphorViewCard
+        title="Open opportunities"
+        description="A card can also make unfiltered views explicit when useful."
+        state={{ status: "success", records: [{ stage: "Proposal", count: 42 }] }}
+        filters={[]}
+        showEmptyFilterState
+      >
+        <div className="grid gap-3">
+          {[
+            ["Proposal", "42"],
+            ["Negotiation", "27"],
+            ["Contract", "18"],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm"
+            >
+              <span className="text-muted-foreground">{label}</span>
+              <span className="font-medium tabular-nums">{value}</span>
+            </div>
+          ))}
+        </div>
+      </SemaphorViewCard>
     </div>
   )
 }

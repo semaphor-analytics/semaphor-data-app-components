@@ -22,6 +22,10 @@ The rules you must not break (see `DESIGN.md` for the full type-scale table):
 - **Hairline borders, not shadows.**
 - **Data views use `SemaphorQueryStateBoundary` / `QueryState`** — never
   hand-roll loading/error/empty/partial UI.
+- **Generated cards use `SemaphorViewCard` / `SemaphorViewFilterBadge`** so
+  users can see which active filters scope each view. App-level controls come
+  from `filter-controls`; card scope comes from the generated Data App input
+  contract, not label or row inference.
 
 Tokens live in `src/index.css`; never hardcode hex / radii / shadows. If you'd
 fix the same thing on a second component, fix it in the primitive or `DESIGN.md`.

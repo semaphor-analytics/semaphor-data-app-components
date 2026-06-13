@@ -96,6 +96,19 @@ markup.
 - **Empty → compact, centered**: inbox icon + short message.
 - **Partial → a small `Partial` badge** above the content. No alert box.
 
+## Filter affordance
+
+Generated dashboards use two visible filter layers:
+
+- app-level controls from `filter-controls` for the actual input handles;
+- per-card scope cues from `SemaphorViewCard` / `SemaphorViewFilterBadge`.
+
+Do not infer scope from prose, labels, or chart rows. Pass active filter
+summaries and view scope from the generated Semaphor Data App input contract.
+Charts, KPI cards, analysis cards, table cards, and matrix cards should sit
+inside `SemaphorViewCard` unless the component already provides an equivalent
+Semaphor shell.
+
 ## Before you commit — checklist
 
 - [ ] Reused a shared primitive wherever one exists.
@@ -106,6 +119,8 @@ markup.
 - [ ] Containment is a hairline border, not a shadow.
 - [ ] Charts use the blue family; no gradients, no extra hues.
 - [ ] Any data view is wrapped in a query-state boundary.
+- [ ] Generated dashboard cards show filter scope with `SemaphorViewCard` or
+      `SemaphorViewFilterBadge`.
 
 ## Changing a token
 

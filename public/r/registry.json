@@ -100,6 +100,35 @@
       ]
     },
     {
+      "name": "view-card",
+      "type": "registry:block",
+      "title": "Semaphor View Card",
+      "description": "Card shell for Data App views with query state handling and per-card filter scope affordances.",
+      "registryDependencies": [
+        "semaphor-analytics/semaphor-data-app-components/query-state-boundary",
+        "badge",
+        "card",
+        "tooltip"
+      ],
+      "files": [
+        {
+          "path": "registry/view-card/index.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/view-card/index.ts"
+        },
+        {
+          "path": "registry/view-card/filter-scope.ts",
+          "type": "registry:lib",
+          "target": "components/semaphor/view-card/filter-scope.ts"
+        },
+        {
+          "path": "registry/view-card/view-card.tsx",
+          "type": "registry:component",
+          "target": "components/semaphor/view-card/view-card.tsx"
+        }
+      ]
+    },
+    {
       "name": "filter-controls",
       "type": "registry:block",
       "title": "Semaphor Filter Controls",
