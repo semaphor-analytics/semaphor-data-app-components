@@ -1,14 +1,15 @@
 # Agent guide — Semaphor Data App Components
 
-This repo has a written design system. **Follow it instead of choosing sizes,
-fonts, or spacing ad hoc.**
+This repo has scoped Semaphor Data App guidance. **Follow it instead of choosing
+sizes, filters, cards, or state handling ad hoc.**
 
-1. **Before any UI change, read `DESIGN.md`** (the source of truth) and
-   `CLAUDE.md` (repo conventions).
+1. **Before any UI change, read
+   `registry/data-app-guidelines/semaphor-data-app-guidelines.md`** and
+   `CLAUDE.md` when present.
 2. **Build from the shared primitives** in `src/components/ui/*` — they're
    pre-tuned to the tokens. Don't rebuild a Button / Select / Popover / Calendar.
 
-The rules you must not break (see `DESIGN.md` for the full type-scale table):
+The rules you must not break:
 
 - **Type by role:** page title `text-2xl`; card title `text-base`; **picking a
   value → `text-sm`** (body, inputs, filter triggers, filter/select dropdown
@@ -28,6 +29,7 @@ The rules you must not break (see `DESIGN.md` for the full type-scale table):
   contract, not label or row inference.
 
 Tokens live in `src/index.css`; never hardcode hex / radii / shadows. If you'd
-fix the same thing on a second component, fix it in the primitive or `DESIGN.md`.
+fix the same thing on a second component, fix it in the primitive or scoped
+guidelines.
 
 Verify with `npm run typecheck && npm run build` after UI changes.

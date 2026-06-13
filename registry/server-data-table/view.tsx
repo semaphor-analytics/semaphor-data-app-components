@@ -34,7 +34,6 @@ import {
   TimerOff,
   WifiOff,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -45,6 +44,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   TableBody,
   TableCell,
@@ -237,9 +243,6 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Badge variant="secondary" aria-live="polite">
-            {totalRows.toLocaleString()} rows
-          </Badge>
           {enableDensityToggle ? (
             <Button
               type="button"
@@ -539,21 +542,26 @@ export function ServerDataTableView<TRow extends ServerDataTableRow = ServerData
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-xs">
             <span className="text-muted-foreground">Rows per page</span>
-            <select
-              className="h-7 rounded-md border bg-background px-2 text-xs"
-              value={pageSize}
-              onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
-              aria-label="Rows per page"
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                if (value) onPageSizeChange?.(Number(value));
+              }}
             >
-              {pageSizeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+              <SelectTrigger size="sm" aria-label="Rows per page">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((option) => (
+                  <SelectItem key={option} value={String(option)}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex items-center gap-1">
             <Button
               type="button"

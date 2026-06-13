@@ -7,6 +7,7 @@ import {
 } from "react"
 import {
   AlertCircleIcon,
+  BookOpenIcon,
   CheckCircle2Icon,
   CheckIcon,
   ChevronRightIcon,
@@ -84,6 +85,7 @@ import {
 import { MiniAreaChart } from "./samples/composed-samples"
 
 type RegistryItemId =
+  | "data-app-guidelines"
   | "query-state-boundary"
   | "view-card"
   | "metric-kpis"
@@ -113,6 +115,17 @@ const CATEGORY_ORDER: RegistryCategory[] = [
 ]
 
 const registryItems: RegistryItem[] = [
+  {
+    id: "data-app-guidelines",
+    title: "Data App Guidelines",
+    category: "State",
+    icon: BookOpenIcon,
+    summary:
+      "Scoped implementation rules for generated Semaphor apps, filter semantics, and registry component usage.",
+    bestFor: "Agent-built apps and starter projects that need durable Semaphor-specific guidance.",
+    installs: ["data-app-guidelines"],
+    dependencies: [],
+  },
   {
     id: "metric-kpis",
     title: "Metric KPIs",
@@ -144,7 +157,14 @@ const registryItems: RegistryItem[] = [
       "Server-paginated, server-sortable records table with bounded height, totals, density, and column visibility.",
     bestFor: "Large records results that should stay server-driven.",
     installs: ["server-data-table"],
-    dependencies: ["query-state", "@tanstack/react-table", "badge", "button", "table"],
+    dependencies: [
+      "query-state",
+      "@tanstack/react-table",
+      "button",
+      "dropdown-menu",
+      "select",
+      "table",
+    ],
   },
   {
     id: "matrix-table",

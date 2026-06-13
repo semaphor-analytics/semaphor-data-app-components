@@ -4,6 +4,19 @@
   "homepage": "https://github.com/semaphor-analytics/semaphor-data-app-components",
   "items": [
     {
+      "name": "data-app-guidelines",
+      "type": "registry:item",
+      "title": "Semaphor Data App Guidelines",
+      "description": "Scoped implementation guidance for building Semaphor Data Apps with the SDK and optional registry components.",
+      "files": [
+        {
+          "path": "registry/data-app-guidelines/semaphor-data-app-guidelines.md",
+          "type": "registry:file",
+          "target": "docs/semaphor-data-app-guidelines.md"
+        }
+      ]
+    },
+    {
       "name": "query-state",
       "type": "registry:component",
       "title": "Semaphor Query State",
@@ -30,8 +43,9 @@
       "dependencies": ["@tanstack/react-table"],
       "registryDependencies": [
         "semaphor-analytics/semaphor-data-app-components/query-state",
-        "badge",
         "button",
+        "dropdown-menu",
+        "select",
         "table"
       ],
       "files": [
